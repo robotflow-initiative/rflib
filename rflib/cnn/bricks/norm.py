@@ -2,8 +2,8 @@ import inspect
 
 import torch.nn as nn
 
-from rfvision.rvtools.utils import is_tuple_of
-from rfvision.rvtools.utils.torch_wrapper import SyncBatchNorm, _BatchNorm, _InstanceNorm
+from rflib.utils import is_tuple_of
+from rflib.utils.torch_wrapper import SyncBatchNorm, _BatchNorm, _InstanceNorm
 from .registry import NORM_LAYERS
 
 NORM_LAYERS.register_module('BN', module=nn.BatchNorm2d)

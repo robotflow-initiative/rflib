@@ -30,7 +30,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 
-import rfvision.rvtools as rv
+import rflib
 
 
 def get_model_complexity_info(model,
@@ -555,9 +555,9 @@ def get_modules_mapping():
         # convolutions
         nn.Conv1d: conv_flops_counter_hook,
         nn.Conv2d: conv_flops_counter_hook,
-        rv.cnn.bricks.Conv2d: conv_flops_counter_hook,
+        rflib.cnn.bricks.Conv2d: conv_flops_counter_hook,
         nn.Conv3d: conv_flops_counter_hook,
-        rv.cnn.bricks.Conv3d: conv_flops_counter_hook,
+        rflib.cnn.bricks.Conv3d: conv_flops_counter_hook,
         # activations
         nn.ReLU: relu_flops_counter_hook,
         nn.PReLU: relu_flops_counter_hook,
@@ -569,9 +569,9 @@ def get_modules_mapping():
         nn.AvgPool1d: pool_flops_counter_hook,
         nn.AvgPool2d: pool_flops_counter_hook,
         nn.MaxPool2d: pool_flops_counter_hook,
-        rv.cnn.bricks.MaxPool2d: pool_flops_counter_hook,
+        rflib.cnn.bricks.MaxPool2d: pool_flops_counter_hook,
         nn.MaxPool3d: pool_flops_counter_hook,
-        rv.cnn.bricks.MaxPool3d: pool_flops_counter_hook,
+        rflib.cnn.bricks.MaxPool3d: pool_flops_counter_hook,
         nn.AvgPool3d: pool_flops_counter_hook,
         nn.AdaptiveMaxPool1d: pool_flops_counter_hook,
         nn.AdaptiveAvgPool1d: pool_flops_counter_hook,
@@ -590,10 +590,10 @@ def get_modules_mapping():
         nn.LayerNorm: norm_flops_counter_hook,
         # FC
         nn.Linear: linear_flops_counter_hook,
-        rv.cnn.bricks.Linear: linear_flops_counter_hook,
+        rflib.cnn.bricks.Linear: linear_flops_counter_hook,
         # Upscale
         nn.Upsample: upsample_flops_counter_hook,
         # Deconvolution
         nn.ConvTranspose2d: deconv_flops_counter_hook,
-        rv.cnn.bricks.ConvTranspose2d: deconv_flops_counter_hook,
+        rflib.cnn.bricks.ConvTranspose2d: deconv_flops_counter_hook,
     }

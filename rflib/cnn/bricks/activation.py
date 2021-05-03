@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from rfvision.rvtools.utils import TORCH_VERSION, build_from_cfg
+from rflib.utils import TORCH_VERSION, build_from_cfg
 from .registry import ACTIVATION_LAYERS
 
 for module in [

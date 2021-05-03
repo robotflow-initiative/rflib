@@ -5,7 +5,7 @@ import warnings
 import numpy as np
 import torch.nn as nn
 
-from rfvision.rvtools.utils import Registry, build_from_cfg, get_logger, print_log
+from rflib.utils import Registry, build_from_cfg, get_logger, print_log
 
 INITIALIZERS = Registry('initializer')
 

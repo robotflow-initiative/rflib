@@ -1,4 +1,4 @@
-from rfvision.rvtools.utils import Registry
+from rflib.utils import Registry
 
 CONV_LAYERS = Registry('conv layer')
 NORM_LAYERS = Registry('norm layer')

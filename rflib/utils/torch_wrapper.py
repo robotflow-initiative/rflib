@@ -61,7 +61,7 @@ class SyncBatchNorm(SyncBatchNorm_):
     def _check_input_dim(self, input):
         super()._check_input_dim(input)
 
-from ..utils import ext_loader
+from rflib.utils import ext_loader
 ext_module = ext_loader.load_ext(
         '_ext', ['get_compiler_version', 'get_compiling_cuda_version'])
 

@@ -5,13 +5,13 @@ import warnings
 import torch
 import torch.nn as nn
 
-from rfvision.rvtools import ConfigDict
-from rfvision.bricks.cnn import (Linear, build_activation_layer, build_norm_layer,
+from rflib import ConfigDict
+from rflib.cnn import (Linear, build_activation_layer, build_norm_layer,
                       constant_init, xavier_init)
 from rflib.ops.multi_scale_deform_attn import (
     MultiScaleDeformableAttnFunction, multi_scale_deformable_attn_pytorch)
-from rfvision.rvtools.runner.base_module import BaseModule
-from rfvision.rvtools.utils import build_from_cfg
+from rflib.runner.base_module import BaseModule
+from rflib.utils import build_from_cfg
 from .registry import (ATTENTION, POSITIONAL_ENCODING, TRANSFORMER_LAYER,
                        TRANSFORMER_LAYER_SEQUENCE)
 
