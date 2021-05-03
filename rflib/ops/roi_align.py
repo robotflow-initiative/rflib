@@ -19,7 +19,7 @@ class RoIAlignFunction(Function):
         has_custom_op = is_custom_op_loaded()
         if has_custom_op:
             return g.op(
-                'mmcv::MMCVRoiAlign',
+                'rflib::RFLIBRoiAlign',
                 input,
                 rois,
                 output_height_i=output_size[0],

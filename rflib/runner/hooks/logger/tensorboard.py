@@ -1,7 +1,7 @@
 # Copyright (c) RobotFlow. All rights reserved.
 import os.path as osp
 
-from rfvision.rvtools.utils import TORCH_VERSION
+from rflib.utils import TORCH_VERSION
 from ...dist_utils import master_only
 from ..hook import HOOKS
 from .base import LoggerHook

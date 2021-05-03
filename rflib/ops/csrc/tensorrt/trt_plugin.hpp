@@ -2,6 +2,6 @@
 #define TRT_PLUGIN_HPP
 
 extern "C" {
-bool initLibMMCVInferPlugins();
+bool initLibRFLIBInferPlugins();
 }  // extern "C"
 #endif  // TRT_PLUGIN_HPP

@@ -14,7 +14,7 @@ class PSAMaskFunction(Function):
     @staticmethod
     def symbolic(g, input, psa_type, mask_size):
         return g.op(
-            'MMCVPSAMask', input, psa_type=psa_type, mask_size=mask_size)
+            'RFLIBPSAMask', input, psa_type=psa_type, mask_size=mask_size)
 
     @staticmethod
     def forward(ctx, input, psa_type, mask_size):

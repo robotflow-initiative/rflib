@@ -21,7 +21,7 @@ class SyncBatchNormFunction(Function):
     def symbolic(g, input, running_mean, running_var, weight, bias, momentum,
                  eps, group, group_size):
         return g.op(
-            'MMCVSyncBatchNorm',
+            'RFLIBSyncBatchNorm',
             input,
             running_mean,
             running_var,

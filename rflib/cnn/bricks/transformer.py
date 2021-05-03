@@ -48,7 +48,7 @@ class MultiheadAttention(BaseModule):
         num_heads (int): Parallel attention heads. Same as
             `nn.MultiheadAttention`.
         dropout (float):w A Dropout layer on attn_output_weights. Default: 0..
-        init_cfg (obj:`rfvision.rvtools.ConfigDict`): The Config for initialization.
+        init_cfg (obj:`rflib.ConfigDict`): The Config for initialization.
             Default: None.
     """
 
@@ -158,7 +158,7 @@ class MultiScaleDeformableAttention(BaseModule):
             Default: 64.
         dropout (float): A Dropout layer on `inp_residual`.
             Default: 0..
-        init_cfg (obj:`rfvision.rvtools.ConfigDict`): The Config for initialization.
+        init_cfg (obj:`rflib.ConfigDict`): The Config for initialization.
             Default: None.
     """
 
@@ -349,7 +349,7 @@ class FFN(BaseModule):
             zeroed. Default 0..
         add_residual (bool, optional): Whether to add the
             residual connection. Default: `True`.
-        init_cfg (obj:`rfvision.rvtools.ConfigDict`): The Config for initialization.
+        init_cfg (obj:`rflib.ConfigDict`): The Config for initialization.
             Default: None.
     """
 
@@ -401,7 +401,7 @@ class FFN(BaseModule):
 class BaseTransformerLayer(BaseModule):
     """Base `TransformerLayer` for vision transformer.
 
-    It can be built from `rfvision.rvtools.ConfigDict` and support more flexible
+    It can be built from `rflib.ConfigDict` and support more flexible
     customization, for example, using any number of `FFN or LN ` and
     use different kinds of `attention` by specifying a list of `ConfigDict`
     named `attn_cfgs`. It is worth mentioning that it supports `prenorm`
@@ -410,7 +410,7 @@ class BaseTransformerLayer(BaseModule):
     Transformer Architecture <https://arxiv.org/abs/2002.04745>`_ .
 
     Args:
-        attn_cfgs (list[`rfvision.rvtools.ConfigDict`] | obj:`rfvision.rvtools.ConfigDict` | None )):
+        attn_cfgs (list[`rflib.ConfigDict`] | obj:`rflib.ConfigDict` | None )):
             Configs for `self_attention` or `cross_attention` modules,
             The order of the configs in the list should be consistent with
             corresponding attentions in operation_order.
@@ -430,7 +430,7 @@ class BaseTransformerLayer(BaseModule):
             Default: dict(type='LN').
         ffn_num_fcs (int): The number of fully-connected layers in FFNs.
             Default：2.
-        init_cfg (obj:`rfvision.rvtools.ConfigDict`): The Config for initialization.
+        init_cfg (obj:`rflib.ConfigDict`): The Config for initialization.
             Default: None.
     """
 
@@ -600,13 +600,13 @@ class TransformerLayerSequence(BaseModule):
     of `transformer_layer` in `transformer_coder`.
 
     Args:
-        transformerlayer (list[obj:`rfvision.rvtools.ConfigDict`] |
-            obj:`rfvision.rvtools.ConfigDict`): Config of transformerlayer
-            in TransformerCoder. If it is obj:`rfvision.rvtools.ConfigDict`,
+        transformerlayer (list[obj:`rflib.ConfigDict`] |
+            obj:`rflib.ConfigDict`): Config of transformerlayer
+            in TransformerCoder. If it is obj:`rflib.ConfigDict`,
              it would be repeated `num_layer` times to a
-             list[`rfvision.rvtools.ConfigDict`]. Default: None.
+             list[`rflib.ConfigDict`]. Default: None.
         num_layers (int): The number of `TransformerLayer`. Default: None.
-        init_cfg (obj:`rfvision.rvtools.ConfigDict`): The Config for initialization.
+        init_cfg (obj:`rflib.ConfigDict`): The Config for initialization.
             Default: None.
     """
 

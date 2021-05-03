@@ -17,7 +17,7 @@ class MaskedConv2dFunction(Function):
     @staticmethod
     def symbolic(g, features, mask, weight, bias, padding, stride):
         return g.op(
-            'MMCVMaskedConv2d',
+            'RFLIBMaskedConv2d',
             features,
             mask,
             weight,

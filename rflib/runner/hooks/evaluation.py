@@ -176,7 +176,7 @@ class EvalHook(Hook):
         if not self._should_evaluate(runner):
             return
 
-        from rfvision.rvtools.engine import single_gpu_test
+        from rflib.engine import single_gpu_test
         results = single_gpu_test(runner.model, self.dataloader)
         key_score = self.evaluate(runner, results)
         if self.save_best:
@@ -255,7 +255,7 @@ class EvalHook(Hook):
         """Evaluate the results.
 
         Args:
-            runner (:obj:`rfvision.rvtools.Runner`): The underlined training runner.
+            runner (:obj:`rflib.Runner`): The underlined training runner.
             results (list): Output results.
         """
         eval_res = self.dataloader.dataset.evaluate(
@@ -360,7 +360,7 @@ class DistEvalHook(EvalHook):
         if tmpdir is None:
             tmpdir = osp.join(runner.work_dir, '.eval_hook')
 
-        from rfvision.rvtools.engine import multi_gpu_test
+        from rflib.engine import multi_gpu_test
         results = multi_gpu_test(
             runner.model,
             self.dataloader,

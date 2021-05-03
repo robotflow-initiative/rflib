@@ -16,7 +16,7 @@ class SigmoidFocalLossFunction(Function):
     @staticmethod
     def symbolic(g, input, target, gamma, alpha, weight, reduction):
         return g.op(
-            'MMCVSigmoidFocalLoss',
+            'RFLIBSigmoidFocalLoss',
             input,
             target,
             gamma=gamma,
@@ -110,7 +110,7 @@ class SoftmaxFocalLossFunction(Function):
     @staticmethod
     def symbolic(g, input, target, gamma, alpha, weight, reduction):
         return g.op(
-            'MMCVSoftmaxFocalLoss',
+            'RFLIBSoftmaxFocalLoss',
             input,
             target,
             gamma=gamma,

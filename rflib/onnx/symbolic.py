@@ -388,7 +388,7 @@ def grid_sampler(g,
                  padding_mode,
                  align_corners=False):
     return g.op(
-        'rfvision.rvtools::grid_sampler',
+        'rflib::grid_sampler',
         input,
         grid,
         interpolation_mode_i=interpolation_mode,

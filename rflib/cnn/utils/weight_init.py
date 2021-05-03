@@ -339,9 +339,9 @@ class PretrainedInit(object):
         self.map_location = map_location
 
     def __call__(self, module):
-        from rfvision.rvtools.runner import (_load_checkpoint_with_prefix, load_checkpoint,
+        from rflib.runner import (_load_checkpoint_with_prefix, load_checkpoint,
                                  load_state_dict)
-        logger = get_logger('rfvision.rv')
+        logger = get_logger('rflib')
         if self.prefix is None:
             print_log(f'load model from: {self.checkpoint}', logger=logger)
             load_checkpoint(

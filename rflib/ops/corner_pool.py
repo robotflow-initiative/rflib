@@ -18,7 +18,7 @@ class TopPoolFunction(Function):
     @staticmethod
     def symbolic(g, input):
         output = g.op(
-            'mmcv::MMCVCornerPool', input, mode_i=int(_mode_dict['top']))
+            'rflib::RFLIBCornerPool', input, mode_i=int(_mode_dict['top']))
         return output
 
     @staticmethod
@@ -39,7 +39,7 @@ class BottomPoolFunction(Function):
     @staticmethod
     def symbolic(g, input):
         output = g.op(
-            'mmcv::MMCVCornerPool', input, mode_i=int(_mode_dict['bottom']))
+            'rflib::RFLIBCornerPool', input, mode_i=int(_mode_dict['bottom']))
         return output
 
     @staticmethod
@@ -60,7 +60,7 @@ class LeftPoolFunction(Function):
     @staticmethod
     def symbolic(g, input):
         output = g.op(
-            'mmcv::MMCVCornerPool', input, mode_i=int(_mode_dict['left']))
+            'rflib::RFLIBCornerPool', input, mode_i=int(_mode_dict['left']))
         return output
 
     @staticmethod
@@ -81,7 +81,7 @@ class RightPoolFunction(Function):
     @staticmethod
     def symbolic(g, input):
         output = g.op(
-            'mmcv::MMCVCornerPool', input, mode_i=int(_mode_dict['right']))
+            'rflib::RFLIBCornerPool', input, mode_i=int(_mode_dict['right']))
         return output
 
     @staticmethod

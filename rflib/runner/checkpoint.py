@@ -15,27 +15,27 @@ import torchvision
 from torch.optim import Optimizer
 from torch.utils import model_zoo
 
-import rfvision.rvtools
+import rflib
 from ..fileio import FileClient
 from ..fileio import load as load_file
 from ..parallel import is_module_wrapper
 from ..utils import mkdir_or_exist
 from .dist_utils import get_dist_info
 
-ENV_RFVISION_HOME = 'RFVISION_HOME'
+ENV_RFLIB_HOME = 'RFLIB_HOME'
 ENV_XDG_CACHE_HOME = 'XDG_CACHE_HOME'
 DEFAULT_CACHE_DIR = '~/.cache'
 
 
-def _get_rfvision_home():
-    rfvision_home = os.path.expanduser(
+def _get_rflib_home():
+    rflib_home = os.path.expanduser(
         os.getenv(
-            ENV_RFVISION_HOME,
+            ENV_RFLIB_HOME,
             os.path.join(
-                os.getenv(ENV_XDG_CACHE_HOME, DEFAULT_CACHE_DIR), 'rfvision')))
+                os.getenv(ENV_XDG_CACHE_HOME, DEFAULT_CACHE_DIR), 'rflib')))
 
-    mkdir_or_exist(rfvision_home)
-    return rfvision_home
+    mkdir_or_exist(rflib_home)
+    return rflib_home
 
 
 def load_state_dict(module, state_dict, strict=False, logger=None):
@@ -119,8 +119,8 @@ def get_torchvision_models():
 
 
 def get_external_models():
-    mmcv_home = _get_rfvision_home()
-    default_json_path = osp.join(rfvision.__path__[0], 'model_zoo/open_mmlab.json')
+    mmcv_home = _get_rflib_home()
+    default_json_path = osp.join(rflib.__path__[0], 'model_zoo/open_mmlab.json')
     default_urls = load_file(default_json_path)
     assert isinstance(default_urls, dict)
     external_json_path = osp.join(mmcv_home, 'open_mmlab.json')
@@ -133,7 +133,7 @@ def get_external_models():
 
 
 def get_mmcls_models():
-    mmcls_json_path = osp.join(rfvision.__path__[0], 'model_zoo/mmcls.json')
+    mmcls_json_path = osp.join(rflib.__path__[0], 'model_zoo/mmcls.json')
     mmcls_urls = load_file(mmcls_json_path)
 
     return mmcls_urls
@@ -231,7 +231,7 @@ class CheckpointLoader:
 
         checkpoint_loader = cls._get_checkpoint_loader(filename)
         class_name = checkpoint_loader.__name__
-        rfvision.print_log(f'Use {class_name} loader', logger)
+        rflib.print_log(f'Use {class_name} loader', logger)
         return checkpoint_loader(filename, map_location)
 
 
@@ -406,7 +406,7 @@ def load_from_openmmlab(filename, map_location=None):
     if model_url.startswith(('http://', 'https://')):
         checkpoint = load_from_http(model_url, map_location=map_location)
     else:
-        filename = osp.join(_get_rfvision_home(), model_url)
+        filename = osp.join(_get_rflib_home(), model_url)
         if not osp.isfile(filename):
             raise IOError(f'{filename} is not a checkpoint file')
         checkpoint = torch.load(filename, map_location=map_location)
@@ -625,7 +625,7 @@ def save_checkpoint(model, filename, optimizer=None, meta=None):
         meta = {}
     elif not isinstance(meta, dict):
         raise TypeError(f'meta must be a dict or None, but got {type(meta)}')
-    meta.update(mmcv_version=rfvision.__version__, time=time.asctime())
+    meta.update(mmcv_version=rflib.__version__, time=time.asctime())
 
     if is_module_wrapper(model):
         model = model.module
@@ -667,7 +667,7 @@ def save_checkpoint(model, filename, optimizer=None, meta=None):
                 f.flush()
             model.create_file(checkpoint_file, name=model_name)
     else:
-        rfvision.mkdir_or_exist(osp.dirname(filename))
+        rflib.mkdir_or_exist(osp.dirname(filename))
         # immediately flush buffer
         with open(filename, 'wb') as f:
             torch.save(checkpoint, f)

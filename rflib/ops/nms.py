@@ -25,10 +25,10 @@ class NMSop(torch.autograd.Function):
         from ..onnx import is_custom_op_loaded
         has_custom_op = is_custom_op_loaded()
         # TensorRT nms plugin is aligned with original nms in ONNXRuntime
-        is_trt_backend = os.environ.get('ONNX_BACKEND') == 'MMCVTensorRT'
+        is_trt_backend = os.environ.get('ONNX_BACKEND') == 'RFLIBTensorRT'
         if has_custom_op and (not is_trt_backend):
             return g.op(
-                'mmcv::NonMaxSuppression',
+                'rflib::NonMaxSuppression',
                 bboxes,
                 scores,
                 iou_threshold_f=float(iou_threshold),
@@ -77,7 +77,7 @@ class SoftNMSop(torch.autograd.Function):
         from packaging import version
         assert version.parse(torch.__version__) >= version.parse('1.7.0')
         nms_out = g.op(
-            'mmcv::SoftNonMaxSuppression',
+            'rflib::SoftNonMaxSuppression',
             boxes,
             scores,
             iou_threshold_f=float(iou_threshold),

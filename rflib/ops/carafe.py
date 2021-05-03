@@ -18,7 +18,7 @@ class CARAFENaiveFunction(Function):
     @staticmethod
     def symbolic(g, features, masks, kernel_size, group_size, scale_factor):
         return g.op(
-            'MMCVCARAFENaive',
+            'RFLIBCARAFENaive',
             features,
             masks,
             kernel_size=kernel_size,
@@ -101,7 +101,7 @@ class CARAFEFunction(Function):
     @staticmethod
     def symbolic(g, features, masks, kernel_size, group_size, scale_factor):
         return g.op(
-            'MMCVCARAFE',
+            'RFLIBCARAFE',
             features,
             masks,
             kernel_size=kernel_size,

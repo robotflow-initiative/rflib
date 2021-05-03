@@ -21,7 +21,7 @@ class ModulatedDeformConv2dFunction(Function):
     def symbolic(g, input, offset, mask, weight, bias, stride, padding,
                  dilation, groups, deform_groups):
         return g.op(
-            'MMCVModulatedDeformConv2d',
+            'RFLIBModulatedDeformConv2d',
             input,
             offset,
             mask,

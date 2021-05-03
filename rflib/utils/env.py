@@ -30,9 +30,9 @@ def collect_env():
                 ``torch.__config__.show()``.
             - TorchVision (optional): TorchVision version.
             - OpenCV: OpenCV version.
-            - MMCV: MMCV version.
-            - MMCV Compiler: The GCC version for compiling MMCV ops.
-            - MMCV CUDA Compiler: The CUDA version for compiling MMCV ops.
+            - RFLIB: RFLIB version.
+            - RFLIB Compiler: The GCC version for compiling RFLIB ops.
+            - RFLIB CUDA Compiler: The CUDA version for compiling RFLIB ops.
     """
     env_info = {}
     env_info['sys.platform'] = sys.platform

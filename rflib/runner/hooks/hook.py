@@ -1,5 +1,5 @@
 # Copyright (c) RobotFlow. All rights reserved.
-from rfvision.rvtools.utils import Registry
+from rflib.utils import Registry
 
 HOOKS = Registry('hook')
 

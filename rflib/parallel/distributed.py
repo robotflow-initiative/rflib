@@ -3,8 +3,8 @@ import torch
 from torch.nn.parallel.distributed import (DistributedDataParallel,
                                            _find_tensors)
 
-from rfvision.rvtools import print_log
-from rfvision.rvtools.utils import TORCH_VERSION
+from rflib.utils import print_log
+from rflib.utils import TORCH_VERSION
 from .scatter_gather import scatter_kwargs
 
 
@@ -40,7 +40,7 @@ class MMDistributedDataParallel(DistributedDataParallel):
         if (TORCH_VERSION >= '1.7') and self.reducer._rebuild_buckets():
             print_log(
                 'Reducer buckets have been rebuilt in this iteration.',
-                logger='rfvision.rvtools')
+                logger='rflib')
 
         if getattr(self, 'require_forward_param_sync', True):
             self._sync_params()
@@ -79,7 +79,7 @@ class MMDistributedDataParallel(DistributedDataParallel):
         if (TORCH_VERSION >= '1.7') and self.reducer._rebuild_buckets():
             print_log(
                 'Reducer buckets have been rebuilt in this iteration.',
-                logger='rfvision.rvtools')
+                logger='rflib')
 
         if getattr(self, 'require_forward_param_sync', True):
             self._sync_params()

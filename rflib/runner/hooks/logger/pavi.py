@@ -6,7 +6,7 @@ import os.path as osp
 import torch
 import yaml
 
-import rfvision.rvtools
+import rflib
 from ....parallel.utils import is_module_wrapper
 from ...dist_utils import master_only
 from ..hook import HOOKS
@@ -54,7 +54,7 @@ class PaviLoggerHook(LoggerHook):
                             f'but got {type(config_dict)}')
             elif 'config_file' in runner.meta:
                 config_file = runner.meta['config_file']
-                config_dict = dict(rfvision.rvtools.Config.fromfile(config_file))
+                config_dict = dict(rflib.Config.fromfile(config_file))
             else:
                 config_dict = None
             if config_dict is not None:
@@ -63,9 +63,9 @@ class PaviLoggerHook(LoggerHook):
                 config_dict = config_dict.copy()
                 config_dict.setdefault('max_iter', runner.max_iters)
                 # non-serializable values are first converted in
-                # rfvision.rvtools.dump to json
+                # rflib.dump to json
                 config_dict = json.loads(
-                    rfvision.rvtools.dump(config_dict, file_format='json'))
+                    rflib.dump(config_dict, file_format='json'))
                 session_text = yaml.dump(config_dict)
                 self.init_kwargs['session_text'] = session_text
         self.writer = SummaryWriter(**self.init_kwargs)

@@ -5,7 +5,7 @@ import torch
 
 
 def preprocess_onnx(onnx_model):
-    """Modify onnx model to match with TensorRT plugins in rfvision.rvtools.
+    """Modify onnx model to match with TensorRT plugins in rflib.
 
     There are some conflict between onnx node definition and TensorRT limit.
     This function perform preprocess on the onnx model to solve the conflicts.

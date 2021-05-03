@@ -24,7 +24,7 @@ class RoIAlignRotatedFunction(Function):
             raise TypeError(
                 '"out_size" must be an integer or tuple of integers')
         return g.op(
-            'mmcv::MMCVRoIAlignRotated',
+            'rflib::RFLIBRoIAlignRotated',
             features,
             rois,
             output_height_i=out_h,

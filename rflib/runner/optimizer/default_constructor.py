@@ -3,8 +3,9 @@ import warnings
 import torch
 from torch.nn import GroupNorm, LayerNorm
 
-from rfvision.rvtools.utils import _BatchNorm, _InstanceNorm, build_from_cfg, is_list_of
-from rfvision.rvtools.utils.ext_loader import check_ops_exist
+from rflib.utils.torch_wrapper import _BatchNorm, _InstanceNorm
+from rflib.utils import build_from_cfg, is_list_of
+from rflib.utils.ext_loader import check_ops_exist
 from .builder import OPTIMIZER_BUILDERS, OPTIMIZERS
 
 

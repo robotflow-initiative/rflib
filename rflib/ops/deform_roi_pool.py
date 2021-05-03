@@ -15,7 +15,7 @@ class DeformRoIPoolFunction(Function):
     def symbolic(g, input, rois, offset, output_size, spatial_scale,
                  sampling_ratio, gamma):
         return g.op(
-            'MMCVDeformRoIPool',
+            'RFLIBDeformRoIPool',
             input,
             rois,
             offset,

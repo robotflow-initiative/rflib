@@ -5,14 +5,14 @@ from itertools import chain
 
 from torch.nn.utils import clip_grad
 
-from rfvision.rvtools.utils import TORCH_VERSION
+from rflib.utils import TORCH_VERSION
 from ..dist_utils import allreduce_grads
 from ..fp16_utils import LossScaler, wrap_fp16_model
 from .hook import HOOKS, Hook
 
 try:
     # If PyTorch version >= 1.6.0, torch.cuda.amp.GradScaler would be imported
-    # and used; otherwise, auto fp16 will adopt rfvision.rvtools's implementation.
+    # and used; otherwise, auto fp16 will adopt rflib's implementation.
     from torch.cuda.amp import GradScaler
 except ImportError:
     pass
@@ -57,7 +57,7 @@ if TORCH_VERSION >= '1.6.0':
                 the specified scale. If loss_scale is a string, it must be
                 'dynamic', then dynamic loss scaling will be used.
                 It can also be a dict containing arguments of GradScalar.
-                Defaults to 512. For Pytorch >= 1.6, rfvision.rvtools uses official
+                Defaults to 512. For Pytorch >= 1.6, rflib uses official
                 implementation of GradScaler. If you use a dict version of
                 loss_scale to create GradScaler, plese refer to:
                 https://pytorch.org/docs/stable/amp.html#torch.cuda.amp.GradScaler
@@ -146,7 +146,7 @@ else:
 
     @HOOKS.register_module()
     class Fp16OptimizerHook(OptimizerHook):
-        """FP16 optimizer hook (rfvision.rvtools's implementation).
+        """FP16 optimizer hook (rflib's implementation).
 
         The steps of fp16 optimizer is as follows.
         1. Scale the loss value.

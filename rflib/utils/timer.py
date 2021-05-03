@@ -15,16 +15,16 @@ class Timer:
     :Example:
 
     >>> import time
-    >>> import rfvision.rvtools
-    >>> with rfvision.rvtools.Timer():
+    >>> import rflib
+    >>> with rflib.Timer():
     >>>     # simulate a code block that will run for 1s
     >>>     time.sleep(1)
     1.000
-    >>> with rfvision.rvtools.Timer(print_tmpl='it takes {:.1f} seconds'):
+    >>> with rflib.Timer(print_tmpl='it takes {:.1f} seconds'):
     >>>     # simulate a code block that will run for 1s
     >>>     time.sleep(1)
     it takes 1.0 seconds
-    >>> timer = rfvision.rvtools.Timer()
+    >>> timer = rflib.Timer()
     >>> time.sleep(0.5)
     >>> print(timer.since_start())
     0.500
@@ -98,11 +98,11 @@ def check_time(timer_id):
     :Example:
 
     >>> import time
-    >>> import rfvision.rvtools
+    >>> import rflib
     >>> for i in range(1, 6):
     >>>     # simulate a code block
     >>>     time.sleep(i)
-    >>>     rfvision.rvtools.check_time('task1')
+    >>>     rflib.check_time('task1')
     2.000
     3.000
     4.000

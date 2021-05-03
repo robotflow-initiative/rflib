@@ -7,12 +7,12 @@ import numpy as np
 import torch
 import torch.nn as nn
 
-from rfvision.rvtools.utils import TORCH_VERSION
+from rflib.utils import TORCH_VERSION
 from .dist_utils import allreduce_grads as _allreduce_grads
 
 try:
     # If PyTorch version >= 1.6.0, torch.cuda.amp.autocast would be imported
-    # and used; otherwise, auto fp16 will adopt rfvision.rvtools's implementation.
+    # and used; otherwise, auto fp16 will adopt rflib's implementation.
     # Note that when PyTorch >= 1.6.0, we still cast tensor types to fp16
     # manually, so the behavior may not be consistant with real amp.
     from torch.cuda.amp import autocast
@@ -56,7 +56,7 @@ def auto_fp16(apply_to=None, out_fp32=False):
     mixed precision training. If inputs arguments are fp32 tensors, they will
     be converted to fp16 automatically. Arguments other than fp32 tensors are
     ignored. If you are using PyTorch >= 1.6, torch.cuda.amp is used as the
-    backend, otherwise, original rfvision.rvtools implementation will be adopted.
+    backend, otherwise, original rflib implementation will be adopted.
 
     Args:
         apply_to (Iterable, optional): The argument names to be converted.
@@ -142,7 +142,7 @@ def force_fp32(apply_to=None, out_fp16=False):
     in fp32 mode, then this decorator can handle it. If inputs arguments are
     fp16 tensors, they will be converted to fp32 automatically. Arguments other
     than fp16 tensors are ignored. If you are using PyTorch >= 1.6,
-    torch.cuda.amp is used as the backend, otherwise, original rfvision.rvtools
+    torch.cuda.amp is used as the backend, otherwise, original rflib
     implementation will be adopted.
 
     Args:
@@ -221,8 +221,8 @@ def force_fp32(apply_to=None, out_fp16=False):
 
 def allreduce_grads(params, coalesce=True, bucket_size_mb=-1):
     warnings.warning(
-        '"rfvision.rvtools.runner.fp16_utils.allreduce_grads" is deprecated, and will be '
-        'removed in v2.8. Please switch to "rfvision.rvtools.runner.allreduce_grads')
+        '"rflib.runner.fp16_utils.allreduce_grads" is deprecated, and will be '
+        'removed in v2.8. Please switch to "rflib.runner.allreduce_grads')
     _allreduce_grads(params, coalesce=coalesce, bucket_size_mb=bucket_size_mb)
 
 
@@ -230,7 +230,7 @@ def wrap_fp16_model(model):
     """Wrap the FP32 model to FP16.
 
     If you are using PyTorch >= 1.6, torch.cuda.amp is used as the
-    backend, otherwise, original rfvision.rvtools implementation will be adopted.
+    backend, otherwise, original rflib implementation will be adopted.
 
     For PyTorch >= 1.6, this function will
     1. Set fp16 flag inside the model to True.

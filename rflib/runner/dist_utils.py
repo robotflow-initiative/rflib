@@ -10,7 +10,7 @@ from torch import distributed as dist
 from torch._utils import (_flatten_dense_tensors, _take_tensors,
                           _unflatten_dense_tensors)
 
-from rfvision.rvtools.utils import TORCH_VERSION
+from rflib.utils import TORCH_VERSION
 
 
 def init_dist(launcher, backend='nccl', **kwargs):

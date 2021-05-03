@@ -265,7 +265,7 @@ class ResNet(nn.Module):
     def init_weights(self, pretrained=None):
         if isinstance(pretrained, str):
             logger = logging.getLogger()
-            from rfvision.rvtools.runner import load_checkpoint
+            from rflib.runner import load_checkpoint
             load_checkpoint(self, pretrained, strict=False, logger=logger)
         elif pretrained is None:
             for m in self.modules():

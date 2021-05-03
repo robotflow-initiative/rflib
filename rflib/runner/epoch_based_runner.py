@@ -7,7 +7,7 @@ import warnings
 
 import torch
 
-import rfvision.rvtools
+import rflib
 from .base_runner import BaseRunner
 from .builder import RUNNERS
 from .checkpoint import save_checkpoint
@@ -81,7 +81,7 @@ class EpochBasedRunner(BaseRunner):
                 iteratively.
         """
         assert isinstance(data_loaders, list)
-        assert rfvision.rvtools.is_list_of(workflow, tuple)
+        assert rflib.is_list_of(workflow, tuple)
         assert len(data_loaders) == len(workflow)
         if max_epochs is not None:
             warnings.warn(
@@ -167,7 +167,7 @@ class EpochBasedRunner(BaseRunner):
         if create_symlink:
             dst_file = osp.join(out_dir, 'latest.pth')
             if platform.system() != 'Windows':
-                rfvision.rvtools.symlink(filename, dst_file)
+                rflib.symlink(filename, dst_file)
             else:
                 shutil.copy(filepath, dst_file)
 

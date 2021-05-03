@@ -9,7 +9,7 @@ from socket import gethostname
 import numpy as np
 import torch
 
-import rfvision.rvtools
+import rflib
 
 
 def get_host_info():
@@ -41,7 +41,7 @@ def obj_from_dict(info, parent=None, default_args=None):
     assert isinstance(default_args, dict) or default_args is None
     args = info.copy()
     obj_type = args.pop('type')
-    if rfvision.rvtools.is_str(obj_type):
+    if rflib.is_str(obj_type):
         if parent is not None:
             obj_type = getattr(parent, obj_type)
         else:
@@ -68,7 +68,7 @@ def set_random_seed(seed, deterministic=False, use_rank_shift=False):
             have different random seed in different threads. Default: False.
     """
     if use_rank_shift:
-        rank, _ = rfvision.rvtools.runner.get_dist_info()
+        rank, _ = rflib.runner.get_dist_info()
         seed += rank
     random.seed(seed)
     np.random.seed(seed)

@@ -1,6 +1,6 @@
 #include "roi_align.h"
 
-#include "../ort_mmcv_utils.h"
+#include "../ort_rflib_utils.h"
 
 // implementation taken from Caffe2
 struct PreCalc {
