@@ -26,7 +26,6 @@ from .saconv import SAConv2d
 from .sync_bn import SyncBatchNorm
 from .tin_shift import TINShift, tin_shift
 from .upfirdn2d import upfirdn2d
-from .knn import KNearestNeighbor
 from .points_in_boxes import (points_in_boxes_batch, points_in_boxes_cpu,
                               points_in_boxes_gpu)
 from .roiaware_pool3d import RoIAwarePool3d
@@ -50,12 +49,11 @@ __all__ = [
     'get_onnxruntime_op_path', 'MaskedConv2d', 'masked_conv2d',
     'ModulatedDeformConv2d', 'ModulatedDeformConv2dPack',
     'modulated_deform_conv2d', 'batched_nms', 'nms', 'soft_nms', 'nms_match',
-    'RoIAlign', 'roi_align', 'RoIPool', 'roi_pool', 'SyncBatchNorm', 'Conv2d',
-    'ConvTranspose2d', 'Linear', 'MaxPool2d', 'CrissCrossAttention', 'PSAMask',
-    'point_sample', 'rel_roi_point_to_rel_img_point', 'SimpleRoIAlign',
+    'RoIAlign', 'roi_align', 'RoIPool', 'roi_pool', 'SyncBatchNorm', 'CrissCrossAttention',
+    'PSAMask', 'point_sample', 'rel_roi_point_to_rel_img_point', 'SimpleRoIAlign',
     'SAConv2d', 'TINShift', 'tin_shift', 'box_iou_rotated', 'nms_rotated',
     'upfirdn2d', 'FusedBiasLeakyReLU', 'fused_bias_leakyrelu',
-    'RoIAlignRotated', 'roi_align_rotated', 'KNearestNeighbor', 'points_in_boxes_batch', 'points_in_boxes_cpu',
+    'RoIAlignRotated', 'roi_align_rotated', 'points_in_boxes_batch', 'points_in_boxes_cpu',
     'points_in_boxes_gpu', 'RoIAwarePool3d', 'boxes_iou_bev', 'nms_gpu', 
     'nms_normal_gpu', 'ball_query', 'furthest_point_sample', 'furthest_point_sample_with_dist',
     'Points_Sampler', 'gather_points', 'QueryAndGroup', 'GroupAll', 'grouping_operation',
