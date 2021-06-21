@@ -1,9 +1,16 @@
+import os
+
+import torch
+TORCH_VERSION = torch.__version__
+
+jit_option = os.getenv('JIT_OPTION')
+
 def jit(func=None,
-        check_input=None,
-        full_shape=True,
-        derivate=False,
-        coderize=False,
-        optimize=False):
+            check_input=None,
+            full_shape=True,
+            derivate=False,
+            coderize=False,
+            optimize=False):
 
     def wrapper(func):
 
@@ -19,6 +26,8 @@ def jit(func=None,
 
 
 def skip_no_elena(func):
+
     def wrapper(*args, **kargs):
         return func(*args, **kargs)
+
     return wrapper

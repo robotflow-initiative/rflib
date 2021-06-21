@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from rflib.utils import TORCH_VERSION, build_from_cfg
+from rflib.utils import build_from_cfg
 from .registry import ACTIVATION_LAYERS
 
 for module in [
@@ -70,10 +70,7 @@ class GELU(nn.Module):
         return F.gelu(input)
 
 
-if TORCH_VERSION < '1.4':
-    ACTIVATION_LAYERS.register_module(module=GELU)
-else:
-    ACTIVATION_LAYERS.register_module(module=nn.GELU)
+ACTIVATION_LAYERS.register_module(module=nn.GELU)
 
 
 def build_activation_layer(cfg):

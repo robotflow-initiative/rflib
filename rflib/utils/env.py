@@ -9,8 +9,9 @@ import cv2
 import torch
 
 import rflib
-from .torch_wrapper import get_build_config
 
+def get_build_config():
+    return torch.__config__.show()
 
 def collect_env():
     """Collect the information of the running environments.
@@ -48,7 +49,7 @@ def collect_env():
         for name, device_ids in devices.items():
             env_info['GPU ' + ','.join(device_ids)] = name
 
-        from .torch_wrapper import CUDA_HOME
+        from torch.utils.cpp_extension import CUDA_HOME
         env_info['CUDA_HOME'] = CUDA_HOME
 
         if CUDA_HOME is not None and osp.isdir(CUDA_HOME):
@@ -82,7 +83,7 @@ def collect_env():
     env_info['RFLIB'] = rflib.__version__
 
     try:
-        from .torch_wrapper import get_compiler_version, get_compiling_cuda_version
+        from rflib.ops import get_compiler_version, get_compiling_cuda_version
     except ModuleNotFoundError:
         env_info['RFLIB Compiler'] = 'n/a'
         env_info['RFLIB CUDA Compiler'] = 'n/a'

@@ -14,7 +14,7 @@ class TensorboardLoggerHook(LoggerHook):
                  log_dir=None,
                  interval=10,
                  ignore_last=True,
-                 reset_flag=True,
+                 reset_flag=False,
                  by_epoch=True):
         super(TensorboardLoggerHook, self).__init__(interval, ignore_last,
                                                     reset_flag, by_epoch)
@@ -22,17 +22,11 @@ class TensorboardLoggerHook(LoggerHook):
 
     @master_only
     def before_run(self, runner):
-        if TORCH_VERSION < '1.1':
-            try:
-                from tensorboardX import SummaryWriter
-            except ImportError:
-                raise ImportError('Please install tensorboardX to use '
-                                  'TensorboardLoggerHook.')
-        else:
-            try:
-                from torch.utils.tensorboard import SummaryWriter
-            except ImportError:
-                raise ImportError(
+        super(TensorboardLoggerHook, self).before_run(runner)
+        try:
+            from torch.utils.tensorboard import SummaryWriter
+        except ImportError:
+            raise ImportError(
                     'Please run "pip install future tensorboard" to install '
                     'the dependencies to use torch.utils.tensorboard '
                     '(applicable to PyTorch 1.1 or higher)')

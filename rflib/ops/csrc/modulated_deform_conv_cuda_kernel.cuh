@@ -66,6 +66,8 @@
 #ifndef MODULATED_DEFORM_CONV_CUDA_KERNEL_CUH
 #define MODULATED_DEFORM_CONV_CUDA_KERNEL_CUH
 
+#include <float.h>
+
 #include "pytorch_cuda_helper.hpp"
 
 template <typename T>

@@ -1,6 +1,7 @@
 #ifndef SIGMOID_FOCAL_LOSS_CUDA_KERNEL_CUH
 #define SIGMOID_FOCAL_LOSS_CUDA_KERNEL_CUH
 
+
 #include "pytorch_cuda_helper.hpp"
 
 template <typename T>

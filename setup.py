@@ -3,14 +3,28 @@ import os
 import re
 from pkg_resources import DistributionNotFound, get_distribution
 from setuptools import find_packages, setup
-import torch
 
+EXT_TYPE = ''
 try:
+    import torch
     from torch.utils.cpp_extension import BuildExtension
+    EXT_TYPE = 'pytorch'
     cmd_class = {'build_ext': BuildExtension}
 except ModuleNotFoundError:
     cmd_class = {}
     print('Skip building ext ops due to the absence of torch.')
+
+
+def choose_requirement(primary, secondary):
+    """If some version of primary requirement installed, return primary, else
+    return secondary."""
+    try:
+        name = re.split(r'[!<>=]', primary)[0]
+        get_distribution(name)
+    except DistributionNotFound:
+        return secondary
+
+    return str(primary)
 
 
 def get_version():
@@ -20,7 +34,7 @@ def get_version():
     return locals()['__version__']
 
 
-def parse_requirements(fname='requirements.txt', with_version=True):
+def parse_requirements(fname='requirements/runtime.txt', with_version=True):
     """Parse the package dependencies listed in a requirements file but strips
     specific versioning information.
 
@@ -97,130 +111,51 @@ def parse_requirements(fname='requirements.txt', with_version=True):
 
 install_requires = parse_requirements()
 
+try:
+    # OpenCV installed via conda.
+    import cv2  # NOQA: F401
+    major, minor, *rest = cv2.__version__.split('.')
+    if int(major) < 3:
+        raise RuntimeError(
+            f'OpenCV >=3 is required but {cv2.__version__} is installed')
+except ImportError:
+    # If first not installed install second package
+    CHOOSE_INSTALL_REQUIRES = [('opencv-python-headless>=3',
+                                'opencv-python>=3')]
+    for main, secondary in CHOOSE_INSTALL_REQUIRES:
+        install_requires.append(choose_requirement(main, secondary))
+
 
 def get_extensions():
     extensions = []
 
-    if os.getenv('RFLIB_WITH_TRT', '0') != '0':
-        ext_name = 'rflib._ext_trt'
-        from torch.utils.cpp_extension import include_paths, library_paths
-        library_dirs = []
-        libraries = []
-        include_dirs = []
-        tensorrt_path = os.getenv('TENSORRT_DIR', '0')
-        tensorrt_lib_path = glob.glob(
-            os.path.join(tensorrt_path, 'targets', '*', 'lib'))[0]
-        library_dirs += [tensorrt_lib_path]
-        libraries += ['nvinfer', 'nvparsers', 'nvinfer_plugin']
-        libraries += ['cudart']
-        kwargs = {}
+    if EXT_TYPE == 'pytorch':
+        ext_name = 'rflib._ext'
+        from torch.utils.cpp_extension import CppExtension, CUDAExtension
+
+        # prevent ninja from using too many resources
+        os.environ.setdefault('MAX_JOBS', '4')
         define_macros = []
         extra_compile_args = {'cxx': []}
 
-        include_path = os.path.abspath('./rflib/ops/csrc')
-        include_trt_path = os.path.abspath('./rflib/ops/csrc/tensorrt')
-        include_dirs.append(include_path)
-        include_dirs.append(include_trt_path)
-        include_dirs.append(os.path.join(tensorrt_path, 'include'))
-        include_dirs += include_paths(cuda=True)
-
-        op_files = glob.glob('./rflib/ops/csrc/tensorrt/plugins/*')
-        define_macros += [('RFLIB_WITH_CUDA', None)]
-        define_macros += [('RFLIB_WITH_TRT', None)]
-        cuda_args = os.getenv('RFLIB_CUDA_ARGS')
-        extra_compile_args['nvcc'] = [cuda_args] if cuda_args else []
-        library_dirs += library_paths(cuda=True)
-
-        kwargs['library_dirs'] = library_dirs
-        kwargs['libraries'] = libraries
-
-        from setuptools import Extension
-        ext_ops = Extension(
-            name=ext_name,
-            sources=op_files,
-            include_dirs=include_dirs,
-            define_macros=define_macros,
-            extra_compile_args=extra_compile_args,
-            language='c++',
-            library_dirs=library_dirs,
-            libraries=libraries)
-        extensions.append(ext_ops)
-
-    if os.getenv('RFLIB_WITH_OPS', '0') == '0':
-        return extensions
-
-    ext_name = 'rflib._ext'
-    from torch.utils.cpp_extension import CppExtension, CUDAExtension
-
-    # prevent ninja from using too many resources
-    os.environ.setdefault('MAX_JOBS', '4')
-    define_macros = []
-    extra_compile_args = {'cxx': []}
-
-    if torch.cuda.is_available() or os.getenv('FORCE_CUDA', '0') == '1':
-        define_macros += [('RFLIB_WITH_CUDA', None)]
-        cuda_args = os.getenv('RFLIB_CUDA_ARGS')
-        extra_compile_args['nvcc'] = [cuda_args] if cuda_args else []
-        op_files = glob.glob('./rflib/ops/csrc/pytorch/*')
-        extension = CUDAExtension
-    else:
-        print(f'Compiling {ext_name} without CUDA')
-        op_files = glob.glob('./rflib/ops/csrc/pytorch/*.cpp')
-        extension = CppExtension
-
-    include_path = os.path.abspath('./rflib/ops/csrc')
-    ext_ops = extension(
-        name=ext_name,
-        sources=op_files,
-        include_dirs=[include_path],
-        define_macros=define_macros,
-        extra_compile_args=extra_compile_args)
-    extensions.append(ext_ops)
-
-    if os.getenv('RFLIB_WITH_ORT', '0') != '0':
-        ext_name = 'rflib._ext_ort'
-        from torch.utils.cpp_extension import library_paths, include_paths
-        import onnxruntime
-        library_dirs = []
-        libraries = []
-        include_dirs = []
-        ort_path = os.getenv('ONNXRUNTIME_DIR', '0')
-        library_dirs += [os.path.join(ort_path, 'lib')]
-        libraries.append('onnxruntime')
-        kwargs = {}
-        define_macros = []
-        extra_compile_args = {'cxx': []}
-
-        include_path = os.path.abspath('./rflib/ops/csrc/onnxruntime')
-        include_dirs.append(include_path)
-        include_dirs.append(os.path.join(ort_path, 'include'))
-
-        op_files = glob.glob('./rflib/ops/csrc/onnxruntime/cpu/*')
-        if onnxruntime.get_device() == 'GPU' or os.getenv('FORCE_CUDA',
-                                                          '0') == '1':
+        if torch.cuda.is_available() or os.getenv('FORCE_CUDA', '0') == '1':
             define_macros += [('RFLIB_WITH_CUDA', None)]
             cuda_args = os.getenv('RFLIB_CUDA_ARGS')
             extra_compile_args['nvcc'] = [cuda_args] if cuda_args else []
-            op_files += glob.glob('./rflib/ops/csrc/onnxruntime/gpu/*')
-            include_dirs += include_paths(cuda=True)
-            library_dirs += library_paths(cuda=True)
+            op_files = glob.glob('./rflib/ops/csrc/pytorch/*')
+            extension = CUDAExtension
         else:
-            include_dirs += include_paths(cuda=False)
-            library_dirs += library_paths(cuda=False)
+            print(f'Compiling {ext_name} without CUDA')
+            op_files = glob.glob('./rflib/ops/csrc/pytorch/*.cpp')
+            extension = CppExtension
 
-        kwargs['library_dirs'] = library_dirs
-        kwargs['libraries'] = libraries
-
-        from setuptools import Extension
-        ext_ops = Extension(
+        include_path = os.path.abspath('./rflib/ops/csrc')
+        ext_ops = extension(
             name=ext_name,
             sources=op_files,
-            include_dirs=include_dirs,
+            include_dirs=[include_path],
             define_macros=define_macros,
-            extra_compile_args=extra_compile_args,
-            language='c++',
-            library_dirs=library_dirs,
-            libraries=libraries)
+            extra_compile_args=extra_compile_args)
         extensions.append(ext_ops)
 
     return extensions
@@ -229,8 +164,8 @@ def get_extensions():
 setup(
     name='rflib',
     version=get_version(),
-    description='RFVision Foundation',
-    keywords='robot vision',
+    description='RobotFlow Foundation',
+    keywords='computer vision',
     packages=find_packages(),
     include_package_data=True,
     classifiers=[

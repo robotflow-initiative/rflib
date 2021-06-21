@@ -2,11 +2,7 @@
 #define ROI_ALIGN_CUDA_KERNEL_CUH
 
 #include <float.h>
-#ifdef RFLIB_WITH_TRT
-#include "common_cuda_helper.hpp"
-#else  // RFLIB_WITH_TRT
 #include "pytorch_cuda_helper.hpp"
-#endif  // RFLIB_WITH_TRT
 
 /*** Forward ***/
 template <typename T>

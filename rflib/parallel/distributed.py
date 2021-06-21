@@ -3,7 +3,7 @@ import torch
 from torch.nn.parallel.distributed import (DistributedDataParallel,
                                            _find_tensors)
 
-from rflib.utils import print_log
+from rflib import print_log
 from rflib.utils import TORCH_VERSION
 from .scatter_gather import scatter_kwargs
 

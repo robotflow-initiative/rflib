@@ -1,12 +1,14 @@
 # RFLib
 
-RFLib provides pre-built library for highly changeable functionalities, such as hardware interface, cuda interface (e.g. Ops), deployment interface (e.g. onnx, TensorRT)
+RFLib provides pre-built library for highly changeable functionalities, such as hardware interface, cuda interface (e.g. Ops)
 
 ## Installation
 ```
-RFLIB_WITH_OPS=1 pip install -e .
+pip install -e .
 ```
 
 ## Todo list
-- [ ] clean unnecessary utils
-- [ ] clean unnecessary ops
+1. ops
+    + torchvision.ops里如果有的就可以删掉了
+    + syncBN check一下和distributedParrallel
+2. hook可以不要，或者弄得简单点

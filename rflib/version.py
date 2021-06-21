@@ -1,6 +1,6 @@
 # Copyright (c) RobotFlow. All rights reserved.
 
-__version__ = '0.0.1'
+__version__ = '1.3.7'
 
 
 def parse_version_info(version_str: str) -> tuple:
