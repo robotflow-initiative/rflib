@@ -10,10 +10,10 @@ import pytest
 import torch
 import torch.nn as nn
 
-from mmcv.parallel import MMDataParallel
-from mmcv.runner import (RUNNERS, EpochBasedRunner, IterBasedRunner,
+from rflib.parallel import RFDataParallel
+from rflib.runner import (RUNNERS, EpochBasedRunner, IterBasedRunner,
                          build_runner)
-from mmcv.runner.hooks import IterTimerHook
+from rflib.runner.hooks import IterTimerHook
 
 
 class OldStyleModel(nn.Module):
@@ -132,10 +132,10 @@ def test_runner_with_parallel(runner_class):
     def batch_processor():
         pass
 
-    model = MMDataParallel(OldStyleModel())
+    model = RFDataParallel(OldStyleModel())
     _ = runner_class(model, batch_processor, logger=logging.getLogger())
 
-    model = MMDataParallel(Model())
+    model = RFDataParallel(Model())
     _ = runner_class(model, logger=logging.getLogger())
 
     with pytest.raises(RuntimeError):
@@ -144,7 +144,7 @@ def test_runner_with_parallel(runner_class):
         def batch_processor():
             pass
 
-        model = MMDataParallel(Model())
+        model = RFDataParallel(Model())
         _ = runner_class(model, batch_processor, logger=logging.getLogger())
 
 

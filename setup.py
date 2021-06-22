@@ -129,6 +129,9 @@ except ImportError:
 def get_extensions():
     extensions = []
 
+    if os.getenv('RFLIB_WITH_OPS', '1') == '0':
+        return extensions
+    
     if EXT_TYPE == 'pytorch':
         ext_name = 'rflib._ext'
         from torch.utils.cpp_extension import CppExtension, CUDAExtension

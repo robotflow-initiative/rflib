@@ -8,10 +8,10 @@ from rflib.utils import TORCH_VERSION
 from .scatter_gather import scatter_kwargs
 
 
-class MMDistributedDataParallel(DistributedDataParallel):
+class RFDistributedDataParallel(DistributedDataParallel):
     """The DDP module that supports DataContainer.
 
-    MMDDP has two main differences with PyTorch DDP:
+    RFDDP has two main differences with PyTorch DDP:
 
     - It supports a custom type :class:`DataContainer` which allows more
       flexible control of input data.

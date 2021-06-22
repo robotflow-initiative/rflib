@@ -125,7 +125,7 @@ class RoIAlignRotated(nn.Module):
         sample_num (int): number of inputs samples to take for each
             output sample. 0 to take samples densely for current models.
         aligned (bool): if False, use the legacy implementation in
-            MMDetection. If True, align the results more perfectly.
+            RFVision. If True, align the results more perfectly.
             Default: True.
         clockwise (bool): If True, the angle in each proposal follows a
             clockwise fashion in image space, otherwise, the angle is

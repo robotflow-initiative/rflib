@@ -92,7 +92,7 @@ class RoIAlign(nn.Module):
             output sample. 0 to take samples densely for current models.
         pool_mode (str, 'avg' or 'max'): pooling mode in each bin.
         aligned (bool): if False, use the legacy implementation in
-            MMDetection. If True, align the results more perfectly.
+            RFVision. If True, align the results more perfectly.
         use_torchvision (bool): whether to use roi_align from torchvision.
 
     Note:
