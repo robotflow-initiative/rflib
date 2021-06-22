@@ -62,8 +62,7 @@ class MMDistributedDataParallel(DistributedDataParallel):
             else:
                 self.reducer.prepare_for_backward([])
         else:
-            if TORCH_VERSION > '1.2':
-                self.require_forward_param_sync = False
+            self.require_forward_param_sync = False
         return output
 
     def val_step(self, *inputs, **kwargs):
@@ -101,6 +100,5 @@ class MMDistributedDataParallel(DistributedDataParallel):
             else:
                 self.reducer.prepare_for_backward([])
         else:
-            if TORCH_VERSION > '1.2':
-                self.require_forward_param_sync = False
+            self.require_forward_param_sync = False
         return output
