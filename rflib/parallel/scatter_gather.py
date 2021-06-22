@@ -1,4 +1,4 @@
-# Copyright (c) RobotFlow. All rights reserved.
+# Copyright (c) Open-MMLab. All rights reserved.
 import torch
 from torch.nn.parallel._functions import Scatter as OrigScatter
 
@@ -10,7 +10,7 @@ def scatter(inputs, target_gpus, dim=0):
     """Scatter inputs to target gpus.
 
     The only difference from original :func:`scatter` is to add support for
-    :type:`~rflib.parallel.DataContainer`.
+    :type:`~mmcv.parallel.DataContainer`.
     """
 
     def scatter_map(obj):

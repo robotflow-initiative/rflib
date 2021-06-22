@@ -1,14 +1,14 @@
-# Copyright (c) RobotFlow. All rights reserved.
+# Copyright (c) Open-MMLab. All rights reserved.
 from .registry import MODULE_WRAPPERS
 
 
 def is_module_wrapper(module):
     """Check if a module is a module wrapper.
 
-    The following 3 modules in RFLIB (and their subclasses) are regarded as
+    The following 3 modules in MMCV (and their subclasses) are regarded as
     module wrappers: DataParallel, DistributedDataParallel,
     MMDistributedDataParallel (the deprecated version). You may add you own
-    module wrapper by registering it to rflib.parallel.MODULE_WRAPPERS.
+    module wrapper by registering it to mmcv.parallel.MODULE_WRAPPERS.
 
     Args:
         module (nn.Module): The module to be checked.

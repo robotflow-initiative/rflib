@@ -23,13 +23,7 @@ class TensorboardLoggerHook(LoggerHook):
     @master_only
     def before_run(self, runner):
         super(TensorboardLoggerHook, self).before_run(runner)
-        try:
-            from torch.utils.tensorboard import SummaryWriter
-        except ImportError:
-            raise ImportError(
-                    'Please run "pip install future tensorboard" to install '
-                    'the dependencies to use torch.utils.tensorboard '
-                    '(applicable to PyTorch 1.1 or higher)')
+        from torch.utils.tensorboard import SummaryWriter
 
         if self.log_dir is None:
             self.log_dir = osp.join(runner.work_dir, 'tf_logs')

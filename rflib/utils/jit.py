@@ -1,8 +1,5 @@
 import os
 
-import torch
-TORCH_VERSION = torch.__version__
-
 jit_option = os.getenv('JIT_OPTION')
 
 def jit(func=None,

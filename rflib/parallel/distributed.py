@@ -1,4 +1,4 @@
-# Copyright (c) RobotFlow. All rights reserved.
+# Copyright (c) Open-MMLab. All rights reserved.
 import torch
 from torch.nn.parallel.distributed import (DistributedDataParallel,
                                            _find_tensors)
@@ -40,7 +40,7 @@ class MMDistributedDataParallel(DistributedDataParallel):
         if (TORCH_VERSION >= '1.7') and self.reducer._rebuild_buckets():
             print_log(
                 'Reducer buckets have been rebuilt in this iteration.',
-                logger='rflib')
+                logger='mmcv')
 
         if getattr(self, 'require_forward_param_sync', True):
             self._sync_params()
@@ -79,7 +79,7 @@ class MMDistributedDataParallel(DistributedDataParallel):
         if (TORCH_VERSION >= '1.7') and self.reducer._rebuild_buckets():
             print_log(
                 'Reducer buckets have been rebuilt in this iteration.',
-                logger='rflib')
+                logger='mmcv')
 
         if getattr(self, 'require_forward_param_sync', True):
             self._sync_params()
