@@ -12,7 +12,6 @@ from .bricks import (ACTIVATION_LAYERS, CONV_LAYERS, NORM_LAYERS,
                      build_upsample_layer, conv_ws_2d, is_norm)
 from .builder import MODELS, build_model_from_cfg
 # yapf: enable
-from .resnet import ResNet, make_res_layer
 from .utils import (INITIALIZERS, Caffe2XavierInit, ConstantInit, KaimingInit,
                     NormalInit, PretrainedInit, TruncNormalInit, UniformInit,
                     XavierInit, bias_init_with_prob, caffe2_xavier_init,
@@ -21,7 +20,6 @@ from .utils import (INITIALIZERS, Caffe2XavierInit, ConstantInit, KaimingInit,
                     uniform_init, xavier_init)
 
 __all__ = [
-    'ResNet', 'make_res_layer',
     'constant_init', 'xavier_init', 'normal_init', 'trunc_normal_init',
     'uniform_init', 'kaiming_init', 'caffe2_xavier_init',
     'bias_init_with_prob', 'ConvModule', 'build_activation_layer',

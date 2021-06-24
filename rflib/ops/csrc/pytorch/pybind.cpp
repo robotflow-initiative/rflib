@@ -101,6 +101,80 @@ void roi_align_rotated_backward(Tensor grad_output, Tensor rois,
                                 int pooled_width, float spatial_scale,
                                 int sample_num, bool aligned, bool clockwise);
 
+int roiaware_pool3d_gpu(at::Tensor rois, at::Tensor pts, at::Tensor pts_feature,
+    at::Tensor argmax, at::Tensor pts_idx_of_voxels,
+    at::Tensor pooled_features, int pool_method);
+
+int roiaware_pool3d_gpu_backward(at::Tensor pts_idx_of_voxels,
+    at::Tensor argmax, at::Tensor grad_out,
+    at::Tensor grad_in, int pool_method);
+
+int points_in_boxes_cpu(at::Tensor boxes_tensor, at::Tensor pts_tensor,
+    at::Tensor pts_indices_tensor);
+
+int points_in_boxes_gpu(at::Tensor boxes_tensor, at::Tensor pts_tensor,
+    at::Tensor box_idx_of_points_tensor);
+
+int points_in_boxes_batch(at::Tensor boxes_tensor, at::Tensor pts_tensor,
+    at::Tensor box_idx_of_points_tensor);
+
+int boxes_overlap_bev_gpu(at::Tensor boxes_a, at::Tensor boxes_b,
+    at::Tensor ans_overlap);
+
+int boxes_iou_bev_gpu(at::Tensor boxes_a, at::Tensor boxes_b,
+    at::Tensor ans_iou);
+
+int nms3d_gpu(at::Tensor boxes, at::Tensor keep,
+    float nms_overlap_thresh, int device_id);
+
+int nms3d_normal_gpu(at::Tensor boxes, at::Tensor keep,
+    float nms_overlap_thresh, int device_id);
+
+int ball_query_wrapper(int b, int n, int m, float min_radius, float max_radius, int nsample,
+    at::Tensor new_xyz_tensor, at::Tensor xyz_tensor,
+    at::Tensor idx_tensor);
+
+int furthest_point_sampling_wrapper(int b, int n, int m,
+    at::Tensor points_tensor,
+    at::Tensor temp_tensor,
+    at::Tensor idx_tensor);
+
+int furthest_point_sampling_with_dist_wrapper(int b, int n, int m,
+    at::Tensor points_tensor,
+    at::Tensor temp_tensor,
+    at::Tensor idx_tensor);
+
+int gather_points_wrapper(int b, int c, int n, int npoints,
+    at::Tensor points_tensor, at::Tensor idx_tensor,
+    at::Tensor out_tensor);
+
+int gather_points_grad_wrapper(int b, int c, int n, int npoints,
+    at::Tensor grad_out_tensor,
+    at::Tensor idx_tensor,
+    at::Tensor grad_points_tensor);
+
+int group_points_wrapper(int b, int c, int n, int npoints, int nsample,
+    at::Tensor points_tensor, at::Tensor idx_tensor,
+    at::Tensor out_tensor);
+
+int group_points_grad_wrapper(int b, int c, int n, int npoints, int nsample,
+    at::Tensor grad_out_tensor, at::Tensor idx_tensor,
+    at::Tensor grad_points_tensor);
+
+void three_nn_wrapper(int b, int n, int m, at::Tensor unknown_tensor,
+    at::Tensor known_tensor, at::Tensor dist2_tensor,
+    at::Tensor idx_tensor);
+
+void three_interpolate_wrapper(int b, int c, int m, int n,
+    at::Tensor points_tensor, at::Tensor idx_tensor,
+    at::Tensor weight_tensor, at::Tensor out_tensor);
+
+void three_interpolate_grad_wrapper(int b, int c, int n, int m,
+    at::Tensor grad_out_tensor,
+    at::Tensor idx_tensor,
+    at::Tensor weight_tensor,
+    at::Tensor grad_points_tensor);
+
 
 PYBIND11_MODULE(TORCH_EXTENSION_NAME, m) {
   m.def("get_compiler_version", &get_compiler_version, "get_compiler_version");
@@ -207,4 +281,37 @@ PYBIND11_MODULE(TORCH_EXTENSION_NAME, m) {
         py::arg("grad_input"), py::arg("pooled_height"),
         py::arg("pooled_width"), py::arg("spatial_scale"),
         py::arg("sample_num"), py::arg("aligned"), py::arg("clockwise"));
+  
+  m.def("knn", &knn, "k-nearest neighbors");
+  m.def("roiaware_pool3d_forward", &roiaware_pool3d_gpu, "roiaware pool3d forward (CUDA)");
+  m.def("roiaware_pool3d_backward", &roiaware_pool3d_gpu_backward,
+        "roiaware pool3d backward (CUDA)");
+  m.def("points_in_boxes_gpu", &points_in_boxes_gpu,
+        "points_in_boxes_gpu forward (CUDA)");
+  m.def("points_in_boxes_batch", &points_in_boxes_batch,
+        "points_in_boxes_batch forward (CUDA)");
+  m.def("points_in_boxes_cpu", &points_in_boxes_cpu,
+        "points_in_boxes_cpu forward (CPU)");
+  m.def("boxes_overlap_bev_gpu", &boxes_overlap_bev_gpu,
+        "oriented boxes overlap");
+  m.def("boxes_iou_bev_gpu", &boxes_iou_bev_gpu, "oriented boxes iou");
+  m.def("nms3d_gpu", &nms3d_gpu, "oriented nms gpu");
+  m.def("nms3d_normal_gpu", &nms3d_normal_gpu, "nms gpu");
+  m.def("ball_query_wrapper", &ball_query_wrapper, "ball_query_wrapper");
+  m.def("furthest_point_sampling_wrapper", &furthest_point_sampling_wrapper,
+        "furthest_point_sampling_wrapper");
+  m.def("furthest_point_sampling_with_dist_wrapper",
+        &furthest_point_sampling_with_dist_wrapper,
+        "furthest_point_sampling_with_dist_wrapper");
+  m.def("gather_points_wrapper", &gather_points_wrapper,
+        "gather_points_wrapper");
+  m.def("gather_points_grad_wrapper", &gather_points_grad_wrapper,
+        "gather_points_grad_wrapper");
+  m.def("group_points_forward", &group_points_wrapper, "group_points_wrapper");
+  m.def("group_points_backward", &group_points_grad_wrapper, "group_points_grad_wrapper");
+  m.def("three_nn_wrapper", &three_nn_wrapper, "three_nn_wrapper");
+  m.def("three_interpolate_wrapper", &three_interpolate_wrapper,
+        "three_interpolate_wrapper");
+  m.def("three_interpolate_grad_wrapper", &three_interpolate_grad_wrapper,
+        "three_interpolate_grad_wrapper");
 }
