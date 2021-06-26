@@ -1,5 +1,5 @@
 import torch
-from robotflow.rflib.runner import force_fp32
+from rflib.runner import force_fp32
 from torch import nn as nn
 from typing import List
 

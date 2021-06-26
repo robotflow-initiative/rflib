@@ -1,10 +1,10 @@
 import torch
-from robotflow.rflib.cnn import ConvModule
+from rflib.cnn import ConvModule
 from torch import nn as nn
 from torch.nn import functional as F
 from typing import List
 
-from robotflow.rflib.ops import GroupAll, Points_Sampler, QueryAndGroup, gather_points
+from rflib.ops import GroupAll, Points_Sampler, QueryAndGroup, gather_points
 from .builder import SA_MODULES
 
 

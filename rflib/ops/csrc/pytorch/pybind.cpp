@@ -175,6 +175,7 @@ void three_interpolate_grad_wrapper(int b, int c, int n, int m,
     at::Tensor weight_tensor,
     at::Tensor grad_points_tensor);
 
+void knn(at::Tensor& ref, at::Tensor& query, at::Tensor& idx);
 
 PYBIND11_MODULE(TORCH_EXTENSION_NAME, m) {
   m.def("get_compiler_version", &get_compiler_version, "get_compiler_version");

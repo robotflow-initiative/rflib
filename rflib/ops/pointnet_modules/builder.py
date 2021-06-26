@@ -1,4 +1,4 @@
-from robotflow.rflib.utils import Registry
+from rflib.utils import Registry
 
 SA_MODULES = Registry('point_sa_module')
 

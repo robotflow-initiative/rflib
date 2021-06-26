@@ -1,3 +1,6 @@
 # Calibration
 
-## How to properly calibrate a camera?
+## Calibration Preparation
+1. with Robot arm
+
+2. without Robot arm

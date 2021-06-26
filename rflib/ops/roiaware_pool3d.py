@@ -1,4 +1,4 @@
-import robotflow.rflib as rflib
+import rflib
 import torch
 from torch import nn as nn
 from torch.autograd import Function

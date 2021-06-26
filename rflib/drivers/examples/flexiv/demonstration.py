@@ -9,7 +9,7 @@ import sys
 import numpy as np
 import time 
 
-from robotflow.control.flexiv import FlexivRobot
+from rflib.drivers.flexiv import FlexivRobot
 
 save_path = os.path.join('.', 'demostrations')
 

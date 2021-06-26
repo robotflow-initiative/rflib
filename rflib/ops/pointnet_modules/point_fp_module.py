@@ -1,10 +1,10 @@
 import torch
-from robotflow.rflib.cnn import ConvModule
-from robotflow.rflib.runner import force_fp32
+from rflib.cnn import ConvModule
+from rflib.runner import force_fp32
 from torch import nn as nn
 from typing import List
 
-from robotflow.rflib.ops import three_interpolate, three_nn
+from rflib.ops import three_interpolate, three_nn
 
 
 class PointFPModule(nn.Module):
