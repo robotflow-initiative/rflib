@@ -1,11 +1,11 @@
 import torch.nn as nn
 
-import mmcv
-from mmcv.cnn import MODELS, build_model_from_cfg
+import rflib
+from rflib.cnn import MODELS, build_model_from_cfg
 
 
 def test_build_model_from_cfg():
-    BACKBONES = mmcv.Registry('backbone', build_func=build_model_from_cfg)
+    BACKBONES = rflib.Registry('backbone', build_func=build_model_from_cfg)
 
     @BACKBONES.register_module()
     class ResNet(nn.Module):
@@ -51,13 +51,13 @@ def test_build_model_from_cfg():
     assert model[1].depth == 50 and model[1].stages == 3
 
     # test inherit `build_func` from parent
-    NEW_MODELS = mmcv.Registry('models', parent=MODELS, scope='new')
+    NEW_MODELS = rflib.Registry('models', parent=MODELS, scope='new')
     assert NEW_MODELS.build_func is build_model_from_cfg
 
     # test specify `build_func`
     def pseudo_build(cfg):
         return cfg
 
-    NEW_MODELS = mmcv.Registry(
+    NEW_MODELS = rflib.Registry(
         'models', parent=MODELS, build_func=pseudo_build)
     assert NEW_MODELS.build_func is pseudo_build

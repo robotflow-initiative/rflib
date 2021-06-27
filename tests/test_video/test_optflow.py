@@ -7,7 +7,7 @@ import numpy as np
 import pytest
 from numpy.testing import assert_array_almost_equal, assert_array_equal
 
-import mmcv
+import rflib
 
 
 def test_flowread():
@@ -15,20 +15,20 @@ def test_flowread():
     flow_shape = (60, 80, 2)
 
     # read .flo file
-    flow = mmcv.flowread(osp.join(data_dir, 'optflow.flo'))
+    flow = rflib.flowread(osp.join(data_dir, 'optflow.flo'))
     assert flow.shape == flow_shape
 
     # pseudo read
-    flow_same = mmcv.flowread(flow)
+    flow_same = rflib.flowread(flow)
     assert_array_equal(flow, flow_same)
 
     # read quantized flow concatenated vertically
-    flow = mmcv.flowread(
+    flow = rflib.flowread(
         osp.join(data_dir, 'optflow_concat0.jpg'), quantize=True, denorm=True)
     assert flow.shape == flow_shape
 
     # read quantized flow concatenated horizontally
-    flow = mmcv.flowread(
+    flow = rflib.flowread(
         osp.join(data_dir, 'optflow_concat1.jpg'),
         quantize=True,
         concat_axis=1,
@@ -38,13 +38,13 @@ def test_flowread():
     # test exceptions
     notflow_file = osp.join(data_dir, 'color.jpg')
     with pytest.raises(TypeError):
-        mmcv.flowread(1)
+        rflib.flowread(1)
     with pytest.raises(IOError):
-        mmcv.flowread(notflow_file)
+        rflib.flowread(notflow_file)
     with pytest.raises(IOError):
-        mmcv.flowread(notflow_file, quantize=True)
+        rflib.flowread(notflow_file, quantize=True)
     with pytest.raises(ValueError):
-        mmcv.flowread(np.zeros((100, 100, 1)))
+        rflib.flowread(np.zeros((100, 100, 1)))
 
 
 def test_flowwrite():
@@ -52,30 +52,30 @@ def test_flowwrite():
 
     # write to a .flo file
     _, filename = tempfile.mkstemp()
-    mmcv.flowwrite(flow, filename)
-    flow_from_file = mmcv.flowread(filename)
+    rflib.flowwrite(flow, filename)
+    flow_from_file = rflib.flowread(filename)
     assert_array_equal(flow, flow_from_file)
     os.remove(filename)
 
     # write to two .jpg files
-    tmp_filename = osp.join(tempfile.gettempdir(), 'mmcv_test_flow.jpg')
+    tmp_filename = osp.join(tempfile.gettempdir(), 'rflib_test_flow.jpg')
     for concat_axis in range(2):
-        mmcv.flowwrite(
+        rflib.flowwrite(
             flow, tmp_filename, quantize=True, concat_axis=concat_axis)
         shape = (200, 100) if concat_axis == 0 else (100, 200)
         assert osp.isfile(tmp_filename)
-        assert mmcv.imread(tmp_filename, flag='unchanged').shape == shape
+        assert rflib.imread(tmp_filename, flag='unchanged').shape == shape
         os.remove(tmp_filename)
 
     # test exceptions
     with pytest.raises(AssertionError):
-        mmcv.flowwrite(flow, tmp_filename, quantize=True, concat_axis=2)
+        rflib.flowwrite(flow, tmp_filename, quantize=True, concat_axis=2)
 
 
 def test_quantize_flow():
     flow = (np.random.rand(10, 8, 2).astype(np.float32) - 0.5) * 15
     max_val = 5.0
-    dx, dy = mmcv.quantize_flow(flow, max_val=max_val, norm=False)
+    dx, dy = rflib.quantize_flow(flow, max_val=max_val, norm=False)
     ref = np.zeros_like(flow, dtype=np.uint8)
     for i in range(ref.shape[0]):
         for j in range(ref.shape[1]):
@@ -86,7 +86,7 @@ def test_quantize_flow():
     assert_array_equal(dx, ref[..., 0])
     assert_array_equal(dy, ref[..., 1])
     max_val = 0.5
-    dx, dy = mmcv.quantize_flow(flow, max_val=max_val, norm=True)
+    dx, dy = rflib.quantize_flow(flow, max_val=max_val, norm=True)
     ref = np.zeros_like(flow, dtype=np.uint8)
     for i in range(ref.shape[0]):
         for j in range(ref.shape[1]):
@@ -103,7 +103,7 @@ def test_dequantize_flow():
     dx = np.random.randint(256, size=(10, 8), dtype=np.uint8)
     dy = np.random.randint(256, size=(10, 8), dtype=np.uint8)
     max_val = 5.0
-    flow = mmcv.dequantize_flow(dx, dy, max_val=max_val, denorm=False)
+    flow = rflib.dequantize_flow(dx, dy, max_val=max_val, denorm=False)
     ref = np.zeros_like(flow, dtype=np.float32)
     for i in range(ref.shape[0]):
         for j in range(ref.shape[1]):
@@ -111,7 +111,7 @@ def test_dequantize_flow():
             ref[i, j, 1] = float(dy[i, j] + 0.5) * 2 * max_val / 255 - max_val
     assert_array_almost_equal(flow, ref)
     max_val = 0.5
-    flow = mmcv.dequantize_flow(dx, dy, max_val=max_val, denorm=True)
+    flow = rflib.dequantize_flow(dx, dy, max_val=max_val, denorm=True)
     h, w = dx.shape
     ref = np.zeros_like(flow, dtype=np.float32)
     for i in range(ref.shape[0]):
@@ -126,7 +126,7 @@ def test_dequantize_flow():
 def test_flow2rgb():
     flow = np.array([[[0, 0], [0.5, 0.5], [1, 1], [2, 1], [3, np.inf]]],
                     dtype=np.float32)
-    flow_img = mmcv.flow2rgb(flow)
+    flow_img = rflib.flow2rgb(flow)
     # yapf: disable
     assert_array_almost_equal(
         flow_img,
@@ -145,8 +145,8 @@ def test_flow_warp():
     img[2, 2, 0] = 1
     flow = np.ones((5, 5, 2))
 
-    res_nn = mmcv.flow_warp(img, flow, interpolate_mode='nearest')
-    res_bi = mmcv.flow_warp(img, flow, interpolate_mode='bilinear')
+    res_nn = rflib.flow_warp(img, flow, interpolate_mode='nearest')
+    res_bi = rflib.flow_warp(img, flow, interpolate_mode='bilinear')
 
     assert_array_almost_equal(res_nn, res_bi, decimal=5)
 
@@ -158,19 +158,19 @@ def test_flow_warp():
 
     res_ = np.copy(img)
     res_[2, 2] = 0.5 * 0.3 + 0.75 * 0.5 * 0.3
-    res_bi = mmcv.flow_warp(img, flow, interpolate_mode='bilinear')
+    res_bi = rflib.flow_warp(img, flow, interpolate_mode='bilinear')
     assert_array_almost_equal(res_, res_bi, decimal=5)
 
     with pytest.raises(NotImplementedError):
-        _ = mmcv.flow_warp(img, flow, interpolate_mode='xxx')
+        _ = rflib.flow_warp(img, flow, interpolate_mode='xxx')
 
     with pytest.raises(AssertionError):
-        _ = mmcv.flow_warp(img, flow[:, :, 0], interpolate_mode='xxx')
+        _ = rflib.flow_warp(img, flow[:, :, 0], interpolate_mode='xxx')
 
 
 def test_make_color_wheel():
-    default_color_wheel = mmcv.make_color_wheel()
-    color_wheel = mmcv.make_color_wheel([2, 2, 2, 2, 2, 2])
+    default_color_wheel = rflib.make_color_wheel()
+    color_wheel = rflib.make_color_wheel([2, 2, 2, 2, 2, 2])
     # yapf: disable
     assert_array_equal(default_color_wheel, np.array(
         [[1.       , 0.        , 0.        ],  # noqa

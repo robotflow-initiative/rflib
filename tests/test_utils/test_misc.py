@@ -1,58 +1,58 @@
 # Copyright (c) Open-MMLab. All rights reserved.
 import pytest
 
-import mmcv
+import rflib
 
 
 def test_iter_cast():
-    assert mmcv.list_cast([1, 2, 3], int) == [1, 2, 3]
-    assert mmcv.list_cast(['1.1', 2, '3'], float) == [1.1, 2.0, 3.0]
-    assert mmcv.list_cast([1, 2, 3], str) == ['1', '2', '3']
-    assert mmcv.tuple_cast((1, 2, 3), str) == ('1', '2', '3')
-    assert next(mmcv.iter_cast([1, 2, 3], str)) == '1'
+    assert rflib.list_cast([1, 2, 3], int) == [1, 2, 3]
+    assert rflib.list_cast(['1.1', 2, '3'], float) == [1.1, 2.0, 3.0]
+    assert rflib.list_cast([1, 2, 3], str) == ['1', '2', '3']
+    assert rflib.tuple_cast((1, 2, 3), str) == ('1', '2', '3')
+    assert next(rflib.iter_cast([1, 2, 3], str)) == '1'
     with pytest.raises(TypeError):
-        mmcv.iter_cast([1, 2, 3], '')
+        rflib.iter_cast([1, 2, 3], '')
     with pytest.raises(TypeError):
-        mmcv.iter_cast(1, str)
+        rflib.iter_cast(1, str)
 
 
 def test_is_seq_of():
-    assert mmcv.is_seq_of([1.0, 2.0, 3.0], float)
-    assert mmcv.is_seq_of([(1, ), (2, ), (3, )], tuple)
-    assert mmcv.is_seq_of((1.0, 2.0, 3.0), float)
-    assert mmcv.is_list_of([1.0, 2.0, 3.0], float)
-    assert not mmcv.is_seq_of((1.0, 2.0, 3.0), float, seq_type=list)
-    assert not mmcv.is_tuple_of([1.0, 2.0, 3.0], float)
-    assert not mmcv.is_seq_of([1.0, 2, 3], int)
-    assert not mmcv.is_seq_of((1.0, 2, 3), int)
+    assert rflib.is_seq_of([1.0, 2.0, 3.0], float)
+    assert rflib.is_seq_of([(1, ), (2, ), (3, )], tuple)
+    assert rflib.is_seq_of((1.0, 2.0, 3.0), float)
+    assert rflib.is_list_of([1.0, 2.0, 3.0], float)
+    assert not rflib.is_seq_of((1.0, 2.0, 3.0), float, seq_type=list)
+    assert not rflib.is_tuple_of([1.0, 2.0, 3.0], float)
+    assert not rflib.is_seq_of([1.0, 2, 3], int)
+    assert not rflib.is_seq_of((1.0, 2, 3), int)
 
 
 def test_slice_list():
     in_list = [1, 2, 3, 4, 5, 6]
-    assert mmcv.slice_list(in_list, [1, 2, 3]) == [[1], [2, 3], [4, 5, 6]]
-    assert mmcv.slice_list(in_list, [len(in_list)]) == [in_list]
+    assert rflib.slice_list(in_list, [1, 2, 3]) == [[1], [2, 3], [4, 5, 6]]
+    assert rflib.slice_list(in_list, [len(in_list)]) == [in_list]
     with pytest.raises(TypeError):
-        mmcv.slice_list(in_list, 2.0)
+        rflib.slice_list(in_list, 2.0)
     with pytest.raises(ValueError):
-        mmcv.slice_list(in_list, [1, 2])
+        rflib.slice_list(in_list, [1, 2])
 
 
 def test_concat_list():
-    assert mmcv.concat_list([[1, 2]]) == [1, 2]
-    assert mmcv.concat_list([[1, 2], [3, 4, 5], [6]]) == [1, 2, 3, 4, 5, 6]
+    assert rflib.concat_list([[1, 2]]) == [1, 2]
+    assert rflib.concat_list([[1, 2], [3, 4, 5], [6]]) == [1, 2, 3, 4, 5, 6]
 
 
 def test_requires_package(capsys):
 
-    @mmcv.requires_package('nnn')
+    @rflib.requires_package('nnn')
     def func_a():
         pass
 
-    @mmcv.requires_package(['numpy', 'n1', 'n2'])
+    @rflib.requires_package(['numpy', 'n1', 'n2'])
     def func_b():
         pass
 
-    @mmcv.requires_package('numpy')
+    @rflib.requires_package('numpy')
     def func_c():
         return 1
 
@@ -74,15 +74,15 @@ def test_requires_package(capsys):
 
 def test_requires_executable(capsys):
 
-    @mmcv.requires_executable('nnn')
+    @rflib.requires_executable('nnn')
     def func_a():
         pass
 
-    @mmcv.requires_executable(['ls', 'n1', 'n2'])
+    @rflib.requires_executable(['ls', 'n1', 'n2'])
     def func_b():
         pass
 
-    @mmcv.requires_executable('mv')
+    @rflib.requires_executable('mv')
     def func_c():
         return 1
 
@@ -106,31 +106,31 @@ def test_import_modules_from_strings():
     # multiple imports
     import os.path as osp_
     import sys as sys_
-    osp, sys = mmcv.import_modules_from_strings(['os.path', 'sys'])
+    osp, sys = rflib.import_modules_from_strings(['os.path', 'sys'])
     assert osp == osp_
     assert sys == sys_
 
     # single imports
-    osp = mmcv.import_modules_from_strings('os.path')
+    osp = rflib.import_modules_from_strings('os.path')
     assert osp == osp_
     # No imports
-    assert mmcv.import_modules_from_strings(None) is None
-    assert mmcv.import_modules_from_strings([]) is None
-    assert mmcv.import_modules_from_strings('') is None
+    assert rflib.import_modules_from_strings(None) is None
+    assert rflib.import_modules_from_strings([]) is None
+    assert rflib.import_modules_from_strings('') is None
     # Unsupported types
     with pytest.raises(TypeError):
-        mmcv.import_modules_from_strings(1)
+        rflib.import_modules_from_strings(1)
     with pytest.raises(TypeError):
-        mmcv.import_modules_from_strings([1])
+        rflib.import_modules_from_strings([1])
     # Failed imports
     with pytest.raises(ImportError):
-        mmcv.import_modules_from_strings('_not_implemented_module')
+        rflib.import_modules_from_strings('_not_implemented_module')
     with pytest.warns(UserWarning):
-        imported = mmcv.import_modules_from_strings(
+        imported = rflib.import_modules_from_strings(
             '_not_implemented_module', allow_failed_imports=True)
         assert imported is None
     with pytest.warns(UserWarning):
-        imported = mmcv.import_modules_from_strings(
+        imported = rflib.import_modules_from_strings(
             ['os.path', '_not_implemented'], allow_failed_imports=True)
         assert imported[0] == osp
         assert imported[1] is None

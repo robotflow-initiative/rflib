@@ -4,38 +4,38 @@ import numpy as np
 import pytest
 from numpy.testing import assert_array_almost_equal, assert_array_equal
 
-import mmcv
-from mmcv.image.colorspace import (_convert_input_type_range,
+import rflib
+from rflib.image.colorspace import (_convert_input_type_range,
                                    _convert_output_type_range)
 
 
 def test_bgr2gray():
     in_img = np.random.rand(10, 10, 3).astype(np.float32)
-    out_img = mmcv.bgr2gray(in_img)
+    out_img = rflib.bgr2gray(in_img)
     computed_gray = (
         in_img[:, :, 0] * 0.114 + in_img[:, :, 1] * 0.587 +
         in_img[:, :, 2] * 0.299)
     assert_array_almost_equal(out_img, computed_gray, decimal=4)
-    out_img_3d = mmcv.bgr2gray(in_img, True)
+    out_img_3d = rflib.bgr2gray(in_img, True)
     assert out_img_3d.shape == (10, 10, 1)
     assert_array_almost_equal(out_img_3d[..., 0], out_img, decimal=4)
 
 
 def test_rgb2gray():
     in_img = np.random.rand(10, 10, 3).astype(np.float32)
-    out_img = mmcv.rgb2gray(in_img)
+    out_img = rflib.rgb2gray(in_img)
     computed_gray = (
         in_img[:, :, 0] * 0.299 + in_img[:, :, 1] * 0.587 +
         in_img[:, :, 2] * 0.114)
     assert_array_almost_equal(out_img, computed_gray, decimal=4)
-    out_img_3d = mmcv.rgb2gray(in_img, True)
+    out_img_3d = rflib.rgb2gray(in_img, True)
     assert out_img_3d.shape == (10, 10, 1)
     assert_array_almost_equal(out_img_3d[..., 0], out_img, decimal=4)
 
 
 def test_gray2bgr():
     in_img = np.random.rand(10, 10).astype(np.float32)
-    out_img = mmcv.gray2bgr(in_img)
+    out_img = rflib.gray2bgr(in_img)
     assert out_img.shape == (10, 10, 3)
     for i in range(3):
         assert_array_almost_equal(out_img[..., i], in_img, decimal=4)
@@ -43,7 +43,7 @@ def test_gray2bgr():
 
 def test_gray2rgb():
     in_img = np.random.rand(10, 10).astype(np.float32)
-    out_img = mmcv.gray2rgb(in_img)
+    out_img = rflib.gray2rgb(in_img)
     assert out_img.shape == (10, 10, 3)
     for i in range(3):
         assert_array_almost_equal(out_img[..., i], in_img, decimal=4)
@@ -51,7 +51,7 @@ def test_gray2rgb():
 
 def test_bgr2rgb():
     in_img = np.random.rand(10, 10, 3).astype(np.float32)
-    out_img = mmcv.bgr2rgb(in_img)
+    out_img = rflib.bgr2rgb(in_img)
     assert out_img.shape == in_img.shape
     assert_array_equal(out_img[..., 0], in_img[..., 2])
     assert_array_equal(out_img[..., 1], in_img[..., 1])
@@ -60,7 +60,7 @@ def test_bgr2rgb():
 
 def test_rgb2bgr():
     in_img = np.random.rand(10, 10, 3).astype(np.float32)
-    out_img = mmcv.rgb2bgr(in_img)
+    out_img = rflib.rgb2bgr(in_img)
     assert out_img.shape == in_img.shape
     assert_array_equal(out_img[..., 0], in_img[..., 2])
     assert_array_equal(out_img[..., 1], in_img[..., 1])
@@ -69,7 +69,7 @@ def test_rgb2bgr():
 
 def test_bgr2hsv():
     in_img = np.random.rand(10, 10, 3).astype(np.float32)
-    out_img = mmcv.bgr2hsv(in_img)
+    out_img = rflib.bgr2hsv(in_img)
     argmax = in_img.argmax(axis=2)
     computed_hsv = np.empty_like(in_img)
     for i in range(in_img.shape[0]):
@@ -133,11 +133,11 @@ def test_rgb2ycbcr():
     with pytest.raises(TypeError):
         # The img type should be np.float32 or np.uint8
         in_img = np.random.rand(10, 10, 3).astype(np.uint64)
-        mmcv.rgb2ycbcr(in_img)
+        rflib.rgb2ycbcr(in_img)
 
     # float32
     in_img = np.random.rand(10, 10, 3).astype(np.float32)
-    out_img = mmcv.rgb2ycbcr(in_img)
+    out_img = rflib.rgb2ycbcr(in_img)
     computed_ycbcr = np.empty_like(in_img)
     for i in range(in_img.shape[0]):
         for j in range(in_img.shape[1]):
@@ -149,7 +149,7 @@ def test_rgb2ycbcr():
     computed_ycbcr /= 255.
     assert_array_almost_equal(out_img, computed_ycbcr, decimal=2)
     # y_only=True
-    out_img = mmcv.rgb2ycbcr(in_img, y_only=True)
+    out_img = rflib.rgb2ycbcr(in_img, y_only=True)
     computed_y = np.empty_like(out_img, dtype=out_img.dtype)
     for i in range(in_img.shape[0]):
         for j in range(in_img.shape[1]):
@@ -161,7 +161,7 @@ def test_rgb2ycbcr():
 
     # uint8
     in_img = (np.random.rand(10, 10, 3) * 255).astype(np.uint8)
-    out_img = mmcv.rgb2ycbcr(in_img)
+    out_img = rflib.rgb2ycbcr(in_img)
     computed_ycbcr = np.empty_like(in_img)
     in_img = in_img / 255.
     for i in range(in_img.shape[0]):
@@ -175,7 +175,7 @@ def test_rgb2ycbcr():
     assert_image_almost_equal(out_img, computed_ycbcr)
     # y_only=True
     in_img = (np.random.rand(10, 10, 3) * 255).astype(np.uint8)
-    out_img = mmcv.rgb2ycbcr(in_img, y_only=True)
+    out_img = rflib.rgb2ycbcr(in_img, y_only=True)
     computed_y = np.empty_like(out_img, dtype=out_img.dtype)
     in_img = in_img / 255.
     for i in range(in_img.shape[0]):
@@ -190,7 +190,7 @@ def test_rgb2ycbcr():
 def test_bgr2ycbcr():
     # float32
     in_img = np.random.rand(10, 10, 3).astype(np.float32)
-    out_img = mmcv.bgr2ycbcr(in_img)
+    out_img = rflib.bgr2ycbcr(in_img)
     computed_ycbcr = np.empty_like(in_img)
     for i in range(in_img.shape[0]):
         for j in range(in_img.shape[1]):
@@ -203,7 +203,7 @@ def test_bgr2ycbcr():
     assert_array_almost_equal(out_img, computed_ycbcr, decimal=2)
     # y_only=True
     in_img = np.random.rand(10, 10, 3).astype(np.float32)
-    out_img = mmcv.bgr2ycbcr(in_img, y_only=True)
+    out_img = rflib.bgr2ycbcr(in_img, y_only=True)
     computed_y = np.empty_like(out_img, dtype=out_img.dtype)
     for i in range(in_img.shape[0]):
         for j in range(in_img.shape[1]):
@@ -215,7 +215,7 @@ def test_bgr2ycbcr():
 
     # uint8
     in_img = (np.random.rand(10, 10, 3) * 255).astype(np.uint8)
-    out_img = mmcv.bgr2ycbcr(in_img)
+    out_img = rflib.bgr2ycbcr(in_img)
     computed_ycbcr = np.empty_like(in_img)
     in_img = in_img / 255.
     for i in range(in_img.shape[0]):
@@ -229,7 +229,7 @@ def test_bgr2ycbcr():
     assert_image_almost_equal(out_img, computed_ycbcr)
     # y_only = True
     in_img = (np.random.rand(10, 10, 3) * 255).astype(np.uint8)
-    out_img = mmcv.bgr2ycbcr(in_img, y_only=True)
+    out_img = rflib.bgr2ycbcr(in_img, y_only=True)
     computed_y = np.empty_like(out_img, dtype=out_img.dtype)
     in_img = in_img / 255.
     for i in range(in_img.shape[0]):
@@ -245,11 +245,11 @@ def test_ycbcr2rgb():
     with pytest.raises(TypeError):
         # The img type should be np.float32 or np.uint8
         in_img = np.random.rand(10, 10, 3).astype(np.uint64)
-        mmcv.ycbcr2rgb(in_img)
+        rflib.ycbcr2rgb(in_img)
 
     # float32
     in_img = np.random.rand(10, 10, 3).astype(np.float32)
-    out_img = mmcv.ycbcr2rgb(in_img)
+    out_img = rflib.ycbcr2rgb(in_img)
     computed_rgb = np.empty_like(in_img)
     in_img *= 255.
     for i in range(in_img.shape[0]):
@@ -265,7 +265,7 @@ def test_ycbcr2rgb():
 
     # uint8
     in_img = (np.random.rand(10, 10, 3) * 255).astype(np.uint8)
-    out_img = mmcv.ycbcr2rgb(in_img)
+    out_img = rflib.ycbcr2rgb(in_img)
     computed_rgb = np.empty_like(in_img)
     for i in range(in_img.shape[0]):
         for j in range(in_img.shape[1]):
@@ -282,7 +282,7 @@ def test_ycbcr2rgb():
 def test_ycbcr2bgr():
     # float32
     in_img = np.random.rand(10, 10, 3).astype(np.float32)
-    out_img = mmcv.ycbcr2bgr(in_img)
+    out_img = rflib.ycbcr2bgr(in_img)
     computed_bgr = np.empty_like(in_img)
     in_img *= 255.
     for i in range(in_img.shape[0]):
@@ -298,7 +298,7 @@ def test_ycbcr2bgr():
 
     # uint8
     in_img = (np.random.rand(10, 10, 3) * 255).astype(np.uint8)
-    out_img = mmcv.ycbcr2bgr(in_img)
+    out_img = rflib.ycbcr2bgr(in_img)
     computed_bgr = np.empty_like(in_img)
     for i in range(in_img.shape[0]):
         for j in range(in_img.shape[1]):
@@ -314,7 +314,7 @@ def test_ycbcr2bgr():
 
 def test_bgr2hls():
     in_img = np.random.rand(10, 10, 3).astype(np.float32)
-    out_img = mmcv.bgr2hls(in_img)
+    out_img = rflib.bgr2hls(in_img)
     argmax = in_img.argmax(axis=2)
     computed_hls = np.empty_like(in_img)
     for i in range(in_img.shape[0]):
@@ -352,4 +352,4 @@ def test_bgr2hls():
                                          ('hls', 'bgr', cv2.COLOR_HLS2BGR)])
 def test_imconvert(src, dst, ref):
     img = np.random.rand(10, 10, 3).astype(np.float32)
-    assert_array_equal(mmcv.imconvert(img, src, dst), cv2.cvtColor(img, ref))
+    assert_array_equal(rflib.imconvert(img, src, dst), cv2.cvtColor(img, ref))

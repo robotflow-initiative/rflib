@@ -1,7 +1,7 @@
 import pytest
 import torch
 
-from mmcv.cnn.bricks import HSigmoid
+from rflib.cnn.bricks import HSigmoid
 
 
 def test_hsigmoid():

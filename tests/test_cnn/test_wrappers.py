@@ -4,7 +4,7 @@ import pytest
 import torch
 import torch.nn as nn
 
-from mmcv.cnn.bricks import (Conv2d, Conv3d, ConvTranspose2d, ConvTranspose3d,
+from rflib.cnn.bricks import (Conv2d, Conv3d, ConvTranspose2d, ConvTranspose3d,
                              Linear, MaxPool2d, MaxPool3d)
 
 torch_version = '1.1'
@@ -320,7 +320,7 @@ def test_linear(in_w, in_h, in_feature, out_feature):
     wrapper(x_empty)
 
 
-@patch('mmcv.cnn.bricks.wrappers.TORCH_VERSION', (1, 8))
+@patch('rflib.cnn.bricks.wrappers.TORCH_VERSION', (1, 8))
 def test_nn_op_forward_called():
 
     for m in ['Conv2d', 'ConvTranspose2d', 'MaxPool2d']:

@@ -25,7 +25,7 @@ class BaseModule(nn.Module, metaclass=ABCMeta):
         # in init_weight() function
         self._is_init = False
         self.init_cfg = init_cfg
-
+        
         # Backward compatibility in derived classes
         # if pretrained is not None:
         #     warnings.warn('DeprecationWarning: pretrained is a deprecated \
@@ -42,6 +42,7 @@ class BaseModule(nn.Module, metaclass=ABCMeta):
 
         if not self._is_init:
             if self.init_cfg:
+                #print("inside base_module:", self.init_cfg)
                 initialize(self, self.init_cfg)
                 if isinstance(self.init_cfg, (dict, ConfigDict)):
                     # Avoid the parameters of the pre-training model

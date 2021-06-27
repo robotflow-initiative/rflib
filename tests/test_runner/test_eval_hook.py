@@ -9,11 +9,11 @@ import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader, Dataset
 
-from mmcv.runner import DistEvalHook as BaseDistEvalHook
-from mmcv.runner import EpochBasedRunner
-from mmcv.runner import EvalHook as BaseEvalHook
-from mmcv.runner import IterBasedRunner
-from mmcv.utils import get_logger
+from rflib.runner import DistEvalHook as BaseDistEvalHook
+from rflib.runner import EpochBasedRunner
+from rflib.runner import EvalHook as BaseEvalHook
+from rflib.runner import IterBasedRunner
+from rflib.utils import get_logger
 
 
 class ExampleDataset(Dataset):
@@ -274,8 +274,8 @@ def test_eval_hook():
         assert not osp.exists(old_ckpt_path)
 
 
-@patch('mmcv.engine.single_gpu_test', MagicMock)
-@patch('mmcv.engine.multi_gpu_test', MagicMock)
+@patch('rflib.engine.single_gpu_test', MagicMock)
+@patch('rflib.engine.multi_gpu_test', MagicMock)
 @pytest.mark.parametrize('EvalHookParam', [EvalHook, DistEvalHook])
 @pytest.mark.parametrize('_build_demo_runner,by_epoch',
                          [(_build_epoch_runner, True),

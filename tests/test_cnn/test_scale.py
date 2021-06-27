@@ -1,6 +1,6 @@
 import torch
 
-from mmcv.cnn.bricks import Scale
+from rflib.cnn.bricks import Scale
 
 
 def test_scale():

@@ -4,8 +4,8 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-import mmcv
-from mmcv import BaseStorageBackend, FileClient
+import rflib
+from rflib import BaseStorageBackend, FileClient
 
 sys.modules['ceph'] = MagicMock()
 sys.modules['petrel_client'] = MagicMock()
@@ -52,12 +52,12 @@ class TestFileClient:
 
         # input path is Path object
         img_bytes = disk_backend.get(self.img_path)
-        img = mmcv.imfrombytes(img_bytes)
+        img = rflib.imfrombytes(img_bytes)
         assert self.img_path.open('rb').read() == img_bytes
         assert img.shape == self.img_shape
         # input path is str
         img_bytes = disk_backend.get(str(self.img_path))
-        img = mmcv.imfrombytes(img_bytes)
+        img = rflib.imfrombytes(img_bytes)
         assert self.img_path.open('rb').read() == img_bytes
         assert img.shape == self.img_shape
 
@@ -81,11 +81,11 @@ class TestFileClient:
 
         # input path is Path object
         img_bytes = ceph_backend.get(self.img_path)
-        img = mmcv.imfrombytes(img_bytes)
+        img = rflib.imfrombytes(img_bytes)
         assert img.shape == self.img_shape
         # input path is str
         img_bytes = ceph_backend.get(str(self.img_path))
-        img = mmcv.imfrombytes(img_bytes)
+        img = rflib.imfrombytes(img_bytes)
         assert img.shape == self.img_shape
 
         # `path_mapping` is either None or dict
@@ -98,7 +98,7 @@ class TestFileClient:
         ceph_backend.client._client.Get = MagicMock(
             return_value=ceph_backend.client._client.Get(self.img_path))
         img_bytes = ceph_backend.get(self.img_path)
-        img = mmcv.imfrombytes(img_bytes)
+        img = rflib.imfrombytes(img_bytes)
         assert img.shape == self.img_shape
         ceph_backend.client._client.Get.assert_called_with(
             str(self.img_path).replace(str(self.test_data_dir), ceph_path))
@@ -116,11 +116,11 @@ class TestFileClient:
 
         # input path is Path object
         img_bytes = petrel_backend.get(self.img_path)
-        img = mmcv.imfrombytes(img_bytes)
+        img = rflib.imfrombytes(img_bytes)
         assert img.shape == self.img_shape
         # input path is str
         img_bytes = petrel_backend.get(str(self.img_path))
-        img = mmcv.imfrombytes(img_bytes)
+        img = rflib.imfrombytes(img_bytes)
         assert img.shape == self.img_shape
 
         # `path_mapping` is either None or dict
@@ -133,7 +133,7 @@ class TestFileClient:
         petrel_backend.client._client.Get = MagicMock(
             return_value=petrel_backend.client._client.Get(self.img_path))
         img_bytes = petrel_backend.get(self.img_path)
-        img = mmcv.imfrombytes(img_bytes)
+        img = rflib.imfrombytes(img_bytes)
         assert img.shape == self.img_shape
         petrel_backend.client._client.Get.assert_called_with(
             str(self.img_path).replace(str(self.test_data_dir), petrel_path))
@@ -154,11 +154,11 @@ class TestFileClient:
 
         # input path is Path object
         img_bytes = mc_backend.get(self.img_path)
-        img = mmcv.imfrombytes(img_bytes)
+        img = rflib.imfrombytes(img_bytes)
         assert img.shape == self.img_shape
         # input path is str
         img_bytes = mc_backend.get(str(self.img_path))
-        img = mmcv.imfrombytes(img_bytes)
+        img = rflib.imfrombytes(img_bytes)
         assert img.shape == self.img_shape
 
     def test_lmdb_backend(self):
@@ -171,7 +171,7 @@ class TestFileClient:
             lmdb_backend.get_text(self.text_path)
 
         img_bytes = lmdb_backend.get('baboon')
-        img = mmcv.imfrombytes(img_bytes)
+        img = rflib.imfrombytes(img_bytes)
         assert img.shape == (120, 125, 3)
 
         # db_path is str
@@ -179,7 +179,7 @@ class TestFileClient:
         with pytest.raises(NotImplementedError):
             lmdb_backend.get_text(str(self.text_path))
         img_bytes = lmdb_backend.get('baboon')
-        img = mmcv.imfrombytes(img_bytes)
+        img = rflib.imfrombytes(img_bytes)
         assert img.shape == (120, 125, 3)
 
     def test_http_backend(self):
@@ -201,7 +201,7 @@ class TestFileClient:
 
         # input url is http image
         img_bytes = http_backend.get(img_url)
-        img = mmcv.imfrombytes(img_bytes)
+        img = rflib.imfrombytes(img_bytes)
         assert img.shape == self.img_shape
 
         # input url is http text

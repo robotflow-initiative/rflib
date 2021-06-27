@@ -1,10 +1,10 @@
 import pytest
 
-import mmcv
+import rflib
 
 
 def test_registry():
-    CATS = mmcv.Registry('cat')
+    CATS = rflib.Registry('cat')
     assert CATS.name == 'cat'
     assert CATS.module_dict == {}
     assert len(CATS) == 0
@@ -136,7 +136,7 @@ def test_registry():
 
 
 def test_multi_scope_registry():
-    DOGS = mmcv.Registry('dogs')
+    DOGS = rflib.Registry('dogs')
     assert DOGS.name == 'dogs'
     assert DOGS.scope == 'test_registry'
     assert DOGS.module_dict == {}
@@ -149,7 +149,7 @@ def test_multi_scope_registry():
     assert len(DOGS) == 1
     assert DOGS.get('GoldenRetriever') is GoldenRetriever
 
-    HOUNDS = mmcv.Registry('dogs', parent=DOGS, scope='hound')
+    HOUNDS = rflib.Registry('dogs', parent=DOGS, scope='hound')
 
     @HOUNDS.register_module()
     class BloodHound:
@@ -160,7 +160,7 @@ def test_multi_scope_registry():
     assert DOGS.get('hound.BloodHound') is BloodHound
     assert HOUNDS.get('hound.BloodHound') is BloodHound
 
-    LITTLE_HOUNDS = mmcv.Registry('dogs', parent=HOUNDS, scope='little_hound')
+    LITTLE_HOUNDS = rflib.Registry('dogs', parent=HOUNDS, scope='little_hound')
 
     @LITTLE_HOUNDS.register_module()
     class Dachshund:
@@ -172,7 +172,7 @@ def test_multi_scope_registry():
     assert HOUNDS.get('little_hound.Dachshund') is Dachshund
     assert DOGS.get('hound.little_hound.Dachshund') is Dachshund
 
-    MID_HOUNDS = mmcv.Registry('dogs', parent=HOUNDS, scope='mid_hound')
+    MID_HOUNDS = rflib.Registry('dogs', parent=HOUNDS, scope='mid_hound')
 
     @MID_HOUNDS.register_module()
     class Beagle:
@@ -187,7 +187,7 @@ def test_multi_scope_registry():
 
 
 def test_build_from_cfg():
-    BACKBONES = mmcv.Registry('backbone')
+    BACKBONES = rflib.Registry('backbone')
 
     @BACKBONES.register_module()
     class ResNet:
@@ -204,79 +204,79 @@ def test_build_from_cfg():
             self.stages = stages
 
     cfg = dict(type='ResNet', depth=50)
-    model = mmcv.build_from_cfg(cfg, BACKBONES)
+    model = rflib.build_from_cfg(cfg, BACKBONES)
     assert isinstance(model, ResNet)
     assert model.depth == 50 and model.stages == 4
 
     cfg = dict(type='ResNet', depth=50)
-    model = mmcv.build_from_cfg(cfg, BACKBONES, default_args={'stages': 3})
+    model = rflib.build_from_cfg(cfg, BACKBONES, default_args={'stages': 3})
     assert isinstance(model, ResNet)
     assert model.depth == 50 and model.stages == 3
 
     cfg = dict(type='ResNeXt', depth=50, stages=3)
-    model = mmcv.build_from_cfg(cfg, BACKBONES)
+    model = rflib.build_from_cfg(cfg, BACKBONES)
     assert isinstance(model, ResNeXt)
     assert model.depth == 50 and model.stages == 3
 
     cfg = dict(type=ResNet, depth=50)
-    model = mmcv.build_from_cfg(cfg, BACKBONES)
+    model = rflib.build_from_cfg(cfg, BACKBONES)
     assert isinstance(model, ResNet)
     assert model.depth == 50 and model.stages == 4
 
     # type defined using default_args
     cfg = dict(depth=50)
-    model = mmcv.build_from_cfg(
+    model = rflib.build_from_cfg(
         cfg, BACKBONES, default_args=dict(type='ResNet'))
     assert isinstance(model, ResNet)
     assert model.depth == 50 and model.stages == 4
 
     cfg = dict(depth=50)
-    model = mmcv.build_from_cfg(cfg, BACKBONES, default_args=dict(type=ResNet))
+    model = rflib.build_from_cfg(cfg, BACKBONES, default_args=dict(type=ResNet))
     assert isinstance(model, ResNet)
     assert model.depth == 50 and model.stages == 4
 
     # not a registry
     with pytest.raises(TypeError):
         cfg = dict(type='VGG')
-        model = mmcv.build_from_cfg(cfg, 'BACKBONES')
+        model = rflib.build_from_cfg(cfg, 'BACKBONES')
 
     # non-registered class
     with pytest.raises(KeyError):
         cfg = dict(type='VGG')
-        model = mmcv.build_from_cfg(cfg, BACKBONES)
+        model = rflib.build_from_cfg(cfg, BACKBONES)
 
     # default_args must be a dict or None
     with pytest.raises(TypeError):
         cfg = dict(type='ResNet', depth=50)
-        model = mmcv.build_from_cfg(cfg, BACKBONES, default_args=1)
+        model = rflib.build_from_cfg(cfg, BACKBONES, default_args=1)
 
     # cfg['type'] should be a str or class
     with pytest.raises(TypeError):
         cfg = dict(type=1000)
-        model = mmcv.build_from_cfg(cfg, BACKBONES)
+        model = rflib.build_from_cfg(cfg, BACKBONES)
 
     # cfg should contain the key "type"
     with pytest.raises(KeyError, match='must contain the key "type"'):
         cfg = dict(depth=50, stages=4)
-        model = mmcv.build_from_cfg(cfg, BACKBONES)
+        model = rflib.build_from_cfg(cfg, BACKBONES)
 
     # cfg or default_args should contain the key "type"
     with pytest.raises(KeyError, match='must contain the key "type"'):
         cfg = dict(depth=50)
-        model = mmcv.build_from_cfg(
+        model = rflib.build_from_cfg(
             cfg, BACKBONES, default_args=dict(stages=4))
 
     # incorrect registry type
     with pytest.raises(TypeError):
         cfg = dict(type='ResNet', depth=50)
-        model = mmcv.build_from_cfg(cfg, 'BACKBONES')
+        model = rflib.build_from_cfg(cfg, 'BACKBONES')
 
     # incorrect default_args type
     with pytest.raises(TypeError):
         cfg = dict(type='ResNet', depth=50)
-        model = mmcv.build_from_cfg(cfg, BACKBONES, default_args=0)
+        model = rflib.build_from_cfg(cfg, BACKBONES, default_args=0)
 
     # incorrect arguments
     with pytest.raises(TypeError):
         cfg = dict(type='ResNet', non_existing_arg=50)
-        model = mmcv.build_from_cfg(cfg, BACKBONES)
+        model = rflib.build_from_cfg(cfg, BACKBONES)

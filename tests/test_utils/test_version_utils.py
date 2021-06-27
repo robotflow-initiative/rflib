@@ -1,6 +1,6 @@
 from unittest.mock import patch
 
-from mmcv import digit_version, get_git_hash, parse_version_info
+from rflib import digit_version, get_git_hash, parse_version_info
 
 
 def test_digit_version():
@@ -28,10 +28,10 @@ def _mock_cmd_fail(cmd):
 
 
 def test_get_git_hash():
-    with patch('mmcv.utils.version_utils._minimal_ext_cmd', _mock_cmd_success):
+    with patch('rflib.utils.version_utils._minimal_ext_cmd', _mock_cmd_success):
         assert get_git_hash() == '3b46d33e90c397869ad5103075838fdfc9812aa0'
         assert get_git_hash(digits=6) == '3b46d3'
         assert get_git_hash(digits=100) == get_git_hash()
-    with patch('mmcv.utils.version_utils._minimal_ext_cmd', _mock_cmd_fail):
+    with patch('rflib.utils.version_utils._minimal_ext_cmd', _mock_cmd_fail):
         assert get_git_hash() == 'unknown'
         assert get_git_hash(fallback='n/a') == 'n/a'

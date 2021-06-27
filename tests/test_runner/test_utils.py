@@ -4,7 +4,7 @@ import random
 import numpy as np
 import torch
 
-from mmcv.runner import set_random_seed
+from rflib.runner import set_random_seed
 
 
 def test_set_random_seed():

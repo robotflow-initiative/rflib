@@ -3,14 +3,14 @@ import pytest
 import torch
 import torch.nn as nn
 
-from mmcv.cnn.bricks import (ACTIVATION_LAYERS, CONV_LAYERS, NORM_LAYERS,
+from rflib.cnn.bricks import (ACTIVATION_LAYERS, CONV_LAYERS, NORM_LAYERS,
                              PADDING_LAYERS, PLUGIN_LAYERS,
                              build_activation_layer, build_conv_layer,
                              build_norm_layer, build_padding_layer,
                              build_plugin_layer, build_upsample_layer, is_norm)
-from mmcv.cnn.bricks.norm import infer_abbr as infer_norm_abbr
-from mmcv.cnn.bricks.plugin import infer_abbr as infer_plugin_abbr
-from mmcv.cnn.bricks.upsample import PixelShufflePack
+from rflib.cnn.bricks.norm import infer_abbr as infer_norm_abbr
+from rflib.cnn.bricks.plugin import infer_abbr as infer_plugin_abbr
+from rflib.cnn.bricks.upsample import PixelShufflePack
 from torch.nn.modules.batchnorm import _BatchNorm
 
 

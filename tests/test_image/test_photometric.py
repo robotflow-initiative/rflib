@@ -6,7 +6,7 @@ import numpy as np
 import pytest
 from numpy.testing import assert_array_equal
 
-import mmcv
+import rflib
 
 
 class TestPhotometric:
@@ -22,10 +22,10 @@ class TestPhotometric:
     def test_imnormalize(self):
         rgb_img = self.img[:, :, ::-1]
         baseline = (rgb_img - self.mean) / self.std
-        img = mmcv.imnormalize(self.img, self.mean, self.std)
+        img = rflib.imnormalize(self.img, self.mean, self.std)
         assert np.allclose(img, baseline)
         assert id(img) != id(self.img)
-        img = mmcv.imnormalize(rgb_img, self.mean, self.std, to_rgb=False)
+        img = rflib.imnormalize(rgb_img, self.mean, self.std, to_rgb=False)
         assert np.allclose(img, baseline)
         assert id(img) != id(rgb_img)
 
@@ -33,10 +33,10 @@ class TestPhotometric:
         img_for_normalize = np.float32(self.img)
         rgb_img_for_normalize = np.float32(self.img[:, :, ::-1])
         baseline = (rgb_img_for_normalize - self.mean) / self.std
-        img = mmcv.imnormalize_(img_for_normalize, self.mean, self.std)
+        img = rflib.imnormalize_(img_for_normalize, self.mean, self.std)
         assert np.allclose(img_for_normalize, baseline)
         assert id(img) == id(img_for_normalize)
-        img = mmcv.imnormalize_(
+        img = rflib.imnormalize_(
             rgb_img_for_normalize, self.mean, self.std, to_rgb=False)
         assert np.allclose(img, baseline)
         assert id(img) == id(rgb_img_for_normalize)
@@ -45,9 +45,9 @@ class TestPhotometric:
         norm_img = (self.img[:, :, ::-1] - self.mean) / self.std
         rgb_baseline = (norm_img * self.std + self.mean)
         bgr_baseline = rgb_baseline[:, :, ::-1]
-        img = mmcv.imdenormalize(norm_img, self.mean, self.std)
+        img = rflib.imdenormalize(norm_img, self.mean, self.std)
         assert np.allclose(img, bgr_baseline)
-        img = mmcv.imdenormalize(norm_img, self.mean, self.std, to_bgr=False)
+        img = rflib.imdenormalize(norm_img, self.mean, self.std, to_bgr=False)
         assert np.allclose(img, rgb_baseline)
 
     def test_iminvert(self):
@@ -55,57 +55,57 @@ class TestPhotometric:
                        dtype=np.uint8)
         img_r = np.array([[255, 127, 0], [254, 128, 1], [253, 126, 2]],
                          dtype=np.uint8)
-        assert_array_equal(mmcv.iminvert(img), img_r)
+        assert_array_equal(rflib.iminvert(img), img_r)
 
     def test_solarize(self):
         img = np.array([[0, 128, 255], [1, 127, 254], [2, 129, 253]],
                        dtype=np.uint8)
         img_r = np.array([[0, 127, 0], [1, 127, 1], [2, 126, 2]],
                          dtype=np.uint8)
-        assert_array_equal(mmcv.solarize(img), img_r)
+        assert_array_equal(rflib.solarize(img), img_r)
         img_r = np.array([[0, 127, 0], [1, 128, 1], [2, 126, 2]],
                          dtype=np.uint8)
-        assert_array_equal(mmcv.solarize(img, 100), img_r)
+        assert_array_equal(rflib.solarize(img, 100), img_r)
 
     def test_posterize(self):
         img = np.array([[0, 128, 255], [1, 127, 254], [2, 129, 253]],
                        dtype=np.uint8)
         img_r = np.array([[0, 128, 128], [0, 0, 128], [0, 128, 128]],
                          dtype=np.uint8)
-        assert_array_equal(mmcv.posterize(img, 1), img_r)
+        assert_array_equal(rflib.posterize(img, 1), img_r)
         img_r = np.array([[0, 128, 224], [0, 96, 224], [0, 128, 224]],
                          dtype=np.uint8)
-        assert_array_equal(mmcv.posterize(img, 3), img_r)
+        assert_array_equal(rflib.posterize(img, 3), img_r)
 
     def test_adjust_color(self):
         img = np.array([[0, 128, 255], [1, 127, 254], [2, 129, 253]],
                        dtype=np.uint8)
         img = np.stack([img, img, img], axis=-1)
-        assert_array_equal(mmcv.adjust_color(img), img)
-        img_gray = mmcv.bgr2gray(img)
+        assert_array_equal(rflib.adjust_color(img), img)
+        img_gray = rflib.bgr2gray(img)
         img_r = np.stack([img_gray, img_gray, img_gray], axis=-1)
-        assert_array_equal(mmcv.adjust_color(img, 0), img_r)
-        assert_array_equal(mmcv.adjust_color(img, 0, 1), img_r)
+        assert_array_equal(rflib.adjust_color(img, 0), img_r)
+        assert_array_equal(rflib.adjust_color(img, 0, 1), img_r)
         assert_array_equal(
-            mmcv.adjust_color(img, 0.5, 0.5),
+            rflib.adjust_color(img, 0.5, 0.5),
             np.round(np.clip((img * 0.5 + img_r * 0.5), 0,
                              255)).astype(img.dtype))
         assert_array_equal(
-            mmcv.adjust_color(img, 1, 1.5),
+            rflib.adjust_color(img, 1, 1.5),
             np.round(np.clip(img * 1 + img_r * 1.5, 0, 255)).astype(img.dtype))
         assert_array_equal(
-            mmcv.adjust_color(img, 0.8, -0.6, gamma=2),
+            rflib.adjust_color(img, 0.8, -0.6, gamma=2),
             np.round(np.clip(img * 0.8 - 0.6 * img_r + 2, 0,
                              255)).astype(img.dtype))
         assert_array_equal(
-            mmcv.adjust_color(img, 0.8, -0.6, gamma=-0.6),
+            rflib.adjust_color(img, 0.8, -0.6, gamma=-0.6),
             np.round(np.clip(img * 0.8 - 0.6 * img_r - 0.6, 0,
                              255)).astype(img.dtype))
 
         # test float type of image
         img = img.astype(np.float32)
         assert_array_equal(
-            np.round(mmcv.adjust_color(img, 0.8, -0.6, gamma=-0.6)),
+            np.round(rflib.adjust_color(img, 0.8, -0.6, gamma=-0.6)),
             np.round(np.clip(img * 0.8 - 0.6 * img_r - 0.6, 0, 255)))
 
     def test_imequalize(self, nb_rand_test=100):
@@ -120,21 +120,21 @@ class TestPhotometric:
         img = np.array([[0, 128, 255], [1, 127, 254], [2, 129, 253]],
                        dtype=np.uint8)
         img = np.stack([img, img, img], axis=-1)
-        equalized_img = mmcv.imequalize(img)
+        equalized_img = rflib.imequalize(img)
         assert_array_equal(equalized_img, _imequalize(img))
 
         # test equalize with case step=0
         img = np.array([[0, 0, 0], [120, 120, 120], [255, 255, 255]],
                        dtype=np.uint8)
         img = np.stack([img, img, img], axis=-1)
-        assert_array_equal(mmcv.imequalize(img), img)
+        assert_array_equal(rflib.imequalize(img), img)
 
         # test equalize with randomly sampled image.
         for _ in range(nb_rand_test):
             img = np.clip(
                 np.random.normal(0, 1, (1000, 1200, 3)) * 260, 0,
                 255).astype(np.uint8)
-            equalized_img = mmcv.imequalize(img)
+            equalized_img = rflib.imequalize(img)
             assert_array_equal(equalized_img, _imequalize(img))
 
     def test_adjust_brightness(self, nb_rand_test=100):
@@ -152,9 +152,9 @@ class TestPhotometric:
                        dtype=np.uint8)
         img = np.stack([img, img, img], axis=-1)
         # test case with factor 1.0
-        assert_array_equal(mmcv.adjust_brightness(img, 1.), img)
+        assert_array_equal(rflib.adjust_brightness(img, 1.), img)
         # test case with factor 0.0
-        assert_array_equal(mmcv.adjust_brightness(img, 0.), np.zeros_like(img))
+        assert_array_equal(rflib.adjust_brightness(img, 0.), np.zeros_like(img))
         # test adjust_brightness with randomly sampled images and factors.
         for _ in range(nb_rand_test):
             img = np.clip(
@@ -162,7 +162,7 @@ class TestPhotometric:
                 255).astype(np.uint8)
             factor = np.random.uniform() + np.random.choice([0, 1])
             np.testing.assert_allclose(
-                mmcv.adjust_brightness(img, factor).astype(np.int32),
+                rflib.adjust_brightness(img, factor).astype(np.int32),
                 _adjust_brightness(img, factor).astype(np.int32),
                 rtol=0,
                 atol=1)
@@ -183,10 +183,10 @@ class TestPhotometric:
                        dtype=np.uint8)
         img = np.stack([img, img, img], axis=-1)
         # test case with factor 1.0
-        assert_array_equal(mmcv.adjust_contrast(img, 1.), img)
+        assert_array_equal(rflib.adjust_contrast(img, 1.), img)
         # test case with factor 0.0
         assert_array_equal(
-            mmcv.adjust_contrast(img, 0.), _adjust_contrast(img, 0.))
+            rflib.adjust_contrast(img, 0.), _adjust_contrast(img, 0.))
         # test adjust_contrast with randomly sampled images and factors.
         for _ in range(nb_rand_test):
             img = np.clip(
@@ -194,10 +194,10 @@ class TestPhotometric:
                 255).astype(np.uint8)
             factor = np.random.uniform() + np.random.choice([0, 1])
             # Note the gap (less_equal 1) between PIL.ImageEnhance.Contrast
-            # and mmcv.adjust_contrast comes from the gap that converts from
-            # a color image to gray image using mmcv or PIL.
+            # and rflib.adjust_contrast comes from the gap that converts from
+            # a color image to gray image using rflib or PIL.
             np.testing.assert_allclose(
-                mmcv.adjust_contrast(img, factor).astype(np.int32),
+                rflib.adjust_contrast(img, factor).astype(np.int32),
                 _adjust_contrast(img, factor).astype(np.int32),
                 rtol=0,
                 atol=1)
@@ -219,19 +219,19 @@ class TestPhotometric:
         img = np.stack([img, img, img], axis=-1)
 
         # test case without cut-off
-        assert_array_equal(mmcv.auto_contrast(img), _auto_contrast(img))
+        assert_array_equal(rflib.auto_contrast(img), _auto_contrast(img))
         # test case with cut-off as int
         assert_array_equal(
-            mmcv.auto_contrast(img, 10), _auto_contrast(img, 10))
+            rflib.auto_contrast(img, 10), _auto_contrast(img, 10))
         # test case with cut-off as float
         assert_array_equal(
-            mmcv.auto_contrast(img, 12.5), _auto_contrast(img, 12.5))
+            rflib.auto_contrast(img, 12.5), _auto_contrast(img, 12.5))
         # test case with cut-off as tuple
         assert_array_equal(
-            mmcv.auto_contrast(img, (10, 10)), _auto_contrast(img, 10))
+            rflib.auto_contrast(img, (10, 10)), _auto_contrast(img, 10))
         # test case with cut-off with sum over 100
         assert_array_equal(
-            mmcv.auto_contrast(img, 60), _auto_contrast(img, 60))
+            rflib.auto_contrast(img, 60), _auto_contrast(img, 60))
 
         # test auto_contrast with randomly sampled images and factors.
         for _ in range(nb_rand_test):
@@ -244,7 +244,7 @@ class TestPhotometric:
             # With pillow above 8.0.0, cutoff can be set as tuple
             cutoff = np.random.rand() * 100
             assert_array_equal(
-                mmcv.auto_contrast(img, cutoff), _auto_contrast(img, cutoff))
+                rflib.auto_contrast(img, cutoff), _auto_contrast(img, cutoff))
 
     def test_adjust_sharpness(self, nb_rand_test=100):
 
@@ -263,18 +263,18 @@ class TestPhotometric:
 
         # test case with invalid type of kernel
         with pytest.raises(AssertionError):
-            mmcv.adjust_sharpness(img, 1., kernel=1.)
+            rflib.adjust_sharpness(img, 1., kernel=1.)
         # test case with invalid shape of kernel
         kernel = np.ones((3, 3, 3))
         with pytest.raises(AssertionError):
-            mmcv.adjust_sharpness(img, 1., kernel=kernel)
+            rflib.adjust_sharpness(img, 1., kernel=kernel)
         # test case with all-zero kernel, factor 0.0
         kernel = np.zeros((3, 3))
         assert_array_equal(
-            mmcv.adjust_sharpness(img, 0., kernel=kernel), np.zeros_like(img))
+            rflib.adjust_sharpness(img, 0., kernel=kernel), np.zeros_like(img))
 
         # test case with factor 1.0
-        assert_array_equal(mmcv.adjust_sharpness(img, 1.), img)
+        assert_array_equal(rflib.adjust_sharpness(img, 1.), img)
         # test adjust_sharpness with randomly sampled images and factors.
         for _ in range(nb_rand_test):
             img = np.clip(
@@ -282,10 +282,10 @@ class TestPhotometric:
                 255).astype(np.uint8)
             factor = np.random.uniform()
             # Note the gap between PIL.ImageEnhance.Sharpness and
-            # mmcv.adjust_sharpness mainly comes from the difference ways of
+            # rflib.adjust_sharpness mainly comes from the difference ways of
             # handling img edges when applying filters
             np.testing.assert_allclose(
-                mmcv.adjust_sharpness(img, factor).astype(np.int32)[1:-1,
+                rflib.adjust_sharpness(img, factor).astype(np.int32)[1:-1,
                                                                     1:-1],
                 _adjust_sharpness(img, factor).astype(np.int32)[1:-1, 1:-1],
                 rtol=0,
@@ -297,16 +297,16 @@ class TestPhotometric:
 
         # eigval and eigvec must be np.ndarray
         with pytest.raises(AssertionError):
-            mmcv.adjust_lighting(img, 1, np.ones((3, 1)))
+            rflib.adjust_lighting(img, 1, np.ones((3, 1)))
         with pytest.raises(AssertionError):
-            mmcv.adjust_lighting(img, np.array([1]), (1, 1, 1))
+            rflib.adjust_lighting(img, np.array([1]), (1, 1, 1))
         # we must have the same number of eigval and eigvec
         with pytest.raises(AssertionError):
-            mmcv.adjust_lighting(img, np.array([1]), np.eye(2))
+            rflib.adjust_lighting(img, np.array([1]), np.eye(2))
         with pytest.raises(AssertionError):
-            mmcv.adjust_lighting(img, np.array([1]), np.array([1]))
+            rflib.adjust_lighting(img, np.array([1]), np.array([1]))
 
-        img_adjusted = mmcv.adjust_lighting(
+        img_adjusted = rflib.adjust_lighting(
             img,
             np.random.normal(0, 1, 2),
             np.random.normal(0, 1, (3, 2)),
@@ -318,29 +318,29 @@ class TestPhotometric:
 
         # test assertion image values should between 0 and 255.
         with pytest.raises(AssertionError):
-            mmcv.lut_transform(np.array([256]), lut_table)
+            rflib.lut_transform(np.array([256]), lut_table)
         with pytest.raises(AssertionError):
-            mmcv.lut_transform(np.array([-1]), lut_table)
+            rflib.lut_transform(np.array([-1]), lut_table)
 
         # test assertion lut_table should be ndarray with shape (256, )
         with pytest.raises(AssertionError):
-            mmcv.lut_transform(np.array([0]), list(range(256)))
+            rflib.lut_transform(np.array([0]), list(range(256)))
         with pytest.raises(AssertionError):
-            mmcv.lut_transform(np.array([1]), np.array(list(range(257))))
+            rflib.lut_transform(np.array([1]), np.array(list(range(257))))
 
-        img = mmcv.lut_transform(self.img, lut_table)
+        img = rflib.lut_transform(self.img, lut_table)
         baseline = cv2.LUT(self.img, lut_table)
         assert np.allclose(img, baseline)
 
         input_img = np.array(
             [[[0, 128, 255], [255, 128, 0]], [[0, 128, 255], [255, 128, 0]]],
             dtype=np.float)
-        img = mmcv.lut_transform(input_img, lut_table)
+        img = rflib.lut_transform(input_img, lut_table)
         baseline = cv2.LUT(np.array(input_img, dtype=np.uint8), lut_table)
         assert np.allclose(img, baseline)
 
         input_img = np.random.randint(0, 256, size=(7, 8, 9, 10, 11))
-        img = mmcv.lut_transform(input_img, lut_table)
+        img = rflib.lut_transform(input_img, lut_table)
         baseline = cv2.LUT(np.array(input_img, dtype=np.uint8), lut_table)
         assert np.allclose(img, baseline)
 
@@ -352,19 +352,19 @@ class TestPhotometric:
 
         # test assertion image should have the right shape
         with pytest.raises(AssertionError):
-            mmcv.clahe(self.img)
+            rflib.clahe(self.img)
 
         # test assertion tile_grid_size should be a tuple with 2 integers
         with pytest.raises(AssertionError):
-            mmcv.clahe(self.img[:, :, 0], tile_grid_size=(8.0, 8.0))
+            rflib.clahe(self.img[:, :, 0], tile_grid_size=(8.0, 8.0))
         with pytest.raises(AssertionError):
-            mmcv.clahe(self.img[:, :, 0], tile_grid_size=(8, 8, 8))
+            rflib.clahe(self.img[:, :, 0], tile_grid_size=(8, 8, 8))
         with pytest.raises(AssertionError):
-            mmcv.clahe(self.img[:, :, 0], tile_grid_size=[8, 8])
+            rflib.clahe(self.img[:, :, 0], tile_grid_size=[8, 8])
 
         # test with different channels
         for i in range(self.img.shape[-1]):
-            img = mmcv.clahe(self.img[:, :, i])
+            img = rflib.clahe(self.img[:, :, i])
             img_std = _clahe(self.img[:, :, i])
             assert np.allclose(img, img_std)
             assert id(img) != id(self.img[:, :, i])
@@ -372,7 +372,7 @@ class TestPhotometric:
 
         # test case with clip_limit=1.2
         for i in range(self.img.shape[-1]):
-            img = mmcv.clahe(self.img[:, :, i], 1.2)
+            img = rflib.clahe(self.img[:, :, i], 1.2)
             img_std = _clahe(self.img[:, :, i], 1.2)
             assert np.allclose(img, img_std)
             assert id(img) != id(self.img[:, :, i])

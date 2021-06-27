@@ -33,7 +33,7 @@ class Testfocalloss(object):
     def _test_softmax(self, dtype=torch.float):
         if not torch.cuda.is_available():
             return
-        from mmcv.ops import softmax_focal_loss
+        from rflib.ops import softmax_focal_loss
         alpha = 0.25
         gamma = 2.0
         for case, output in zip(inputs, softmax_outputs):
@@ -54,7 +54,7 @@ class Testfocalloss(object):
     def _test_sigmoid(self, dtype=torch.float):
         if not torch.cuda.is_available():
             return
-        from mmcv.ops import sigmoid_focal_loss
+        from rflib.ops import sigmoid_focal_loss
         alpha = 0.25
         gamma = 2.0
         for case, output in zip(inputs, sigmoid_outputs):
@@ -75,7 +75,7 @@ class Testfocalloss(object):
     def _test_grad_softmax(self, dtype=torch.float):
         if not torch.cuda.is_available():
             return
-        from mmcv.ops import SoftmaxFocalLoss
+        from rflib.ops import SoftmaxFocalLoss
         alpha = 0.25
         gamma = 2.0
         for case in inputs:
@@ -92,7 +92,7 @@ class Testfocalloss(object):
     def _test_grad_sigmoid(self, dtype=torch.float):
         if not torch.cuda.is_available():
             return
-        from mmcv.ops import SigmoidFocalLoss
+        from rflib.ops import SigmoidFocalLoss
         alpha = 0.25
         gamma = 2.0
         for case in inputs:

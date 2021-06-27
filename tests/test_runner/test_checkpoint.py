@@ -8,8 +8,8 @@ import torch
 import torch.nn as nn
 from torch.nn.parallel import DataParallel
 
-from mmcv.parallel.registry import MODULE_WRAPPERS
-from mmcv.runner.checkpoint import (_load_checkpoint_with_prefix,
+from rflib.parallel.registry import MODULE_WRAPPERS
+from rflib.runner.checkpoint import (_load_checkpoint_with_prefix,
                                     get_state_dict, load_checkpoint,
                                     load_from_pavi)
 
@@ -216,7 +216,7 @@ def test_load_classes_name():
 
     import tempfile
 
-    from mmcv.runner import load_checkpoint, save_checkpoint
+    from rflib.runner import load_checkpoint, save_checkpoint
     checkpoint_path = os.path.join(tempfile.gettempdir(), 'checkpoint.pth')
     model = Model()
     save_checkpoint(model, checkpoint_path)
@@ -246,7 +246,7 @@ def test_load_classes_name():
 
 
 def test_checkpoint_loader():
-    from mmcv.runner import _load_checkpoint, save_checkpoint, CheckpointLoader
+    from rflib.runner import _load_checkpoint, save_checkpoint, CheckpointLoader
     import tempfile
     import os
     checkpoint_path = os.path.join(tempfile.gettempdir(), 'checkpoint.pth')

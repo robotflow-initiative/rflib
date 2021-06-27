@@ -5,38 +5,38 @@ from unittest.mock import patch
 
 import pytest
 
-import mmcv
-from mmcv.runner.checkpoint import (DEFAULT_CACHE_DIR, ENV_MMCV_HOME,
-                                    ENV_XDG_CACHE_HOME, _get_mmcv_home,
+import rflib
+from rflib.runner.checkpoint import (DEFAULT_CACHE_DIR, ENV_RFLIB_HOME,
+                                    ENV_XDG_CACHE_HOME, _get_rflib_home,
                                     _load_checkpoint,
                                     get_deprecated_model_names,
                                     get_external_models)
 
 
-@patch('mmcv.__path__', [osp.join(osp.dirname(__file__), 'data/')])
-def test_set_mmcv_home():
-    os.environ.pop(ENV_MMCV_HOME, None)
-    mmcv_home = osp.join(osp.dirname(__file__), 'data/model_zoo/mmcv_home/')
-    os.environ[ENV_MMCV_HOME] = mmcv_home
-    assert _get_mmcv_home() == mmcv_home
+@patch('rflib.__path__', [osp.join(osp.dirname(__file__), 'data/')])
+def test_set_rflib_home():
+    os.environ.pop(ENV_RFLIB_HOME, None)
+    rflib_home = osp.join(osp.dirname(__file__), 'data/model_zoo/rflib_home/')
+    os.environ[ENV_RFLIB_HOME] = rflib_home
+    assert _get_rflib_home() == rflib_home
 
 
-@patch('mmcv.__path__', [osp.join(osp.dirname(__file__), 'data/')])
-def test_default_mmcv_home():
-    os.environ.pop(ENV_MMCV_HOME, None)
+@patch('rflib.__path__', [osp.join(osp.dirname(__file__), 'data/')])
+def test_default_rflib_home():
+    os.environ.pop(ENV_RFLIB_HOME, None)
     os.environ.pop(ENV_XDG_CACHE_HOME, None)
-    assert _get_mmcv_home() == os.path.expanduser(
-        os.path.join(DEFAULT_CACHE_DIR, 'mmcv'))
+    assert _get_rflib_home() == os.path.expanduser(
+        os.path.join(DEFAULT_CACHE_DIR, 'rflib'))
     model_urls = get_external_models()
-    assert model_urls == mmcv.load(
-        osp.join(mmcv.__path__[0], 'model_zoo/open_mmlab.json'))
+    assert model_urls == rflib.load(
+        osp.join(rflib.__path__[0], 'model_zoo/open_mmlab.json'))
 
 
-@patch('mmcv.__path__', [osp.join(osp.dirname(__file__), 'data/')])
+@patch('rflib.__path__', [osp.join(osp.dirname(__file__), 'data/')])
 def test_get_external_models():
-    os.environ.pop(ENV_MMCV_HOME, None)
-    mmcv_home = osp.join(osp.dirname(__file__), 'data/model_zoo/mmcv_home/')
-    os.environ[ENV_MMCV_HOME] = mmcv_home
+    os.environ.pop(ENV_RFLIB_HOME, None)
+    rflib_home = osp.join(osp.dirname(__file__), 'data/model_zoo/rflib_home/')
+    os.environ[ENV_RFLIB_HOME] = rflib_home
     ext_urls = get_external_models()
     assert ext_urls == {
         'train': 'https://localhost/train.pth',
@@ -46,11 +46,11 @@ def test_get_external_models():
     }
 
 
-@patch('mmcv.__path__', [osp.join(osp.dirname(__file__), 'data/')])
+@patch('rflib.__path__', [osp.join(osp.dirname(__file__), 'data/')])
 def test_get_deprecated_models():
-    os.environ.pop(ENV_MMCV_HOME, None)
-    mmcv_home = osp.join(osp.dirname(__file__), 'data/model_zoo/mmcv_home/')
-    os.environ[ENV_MMCV_HOME] = mmcv_home
+    os.environ.pop(ENV_RFLIB_HOME, None)
+    rflib_home = osp.join(osp.dirname(__file__), 'data/model_zoo/rflib_home/')
+    os.environ[ENV_RFLIB_HOME] = rflib_home
     dep_urls = get_deprecated_model_names()
     assert dep_urls == {
         'train_old': 'train',
@@ -70,8 +70,8 @@ def load(filepath, map_location=None):
     return 'local:' + filepath
 
 
-@patch('mmcv.__path__', [osp.join(osp.dirname(__file__), 'data/')])
-@patch('mmcv.runner.checkpoint.load_from_http', load_from_http)
+@patch('rflib.__path__', [osp.join(osp.dirname(__file__), 'data/')])
+@patch('rflib.runner.checkpoint.load_from_http', load_from_http)
 @patch('torch.load', load)
 @patch('torch.utils.model_zoo.load_url', load_url)
 def test_load_external_url():
@@ -85,14 +85,14 @@ def test_load_external_url():
     assert url == 'url:https://download.pytorch.org/models/resnet50-19c8e357' \
                   '.pth'
 
-    # test open-mmlab:// with default MMCV_HOME
-    os.environ.pop(ENV_MMCV_HOME, None)
+    # test open-mmlab:// with default RFLIB_HOME
+    os.environ.pop(ENV_RFLIB_HOME, None)
     os.environ.pop(ENV_XDG_CACHE_HOME, None)
     url = _load_checkpoint('open-mmlab://train')
     assert url == 'url:https://localhost/train.pth'
 
     # test open-mmlab:// with deprecated model name
-    os.environ.pop(ENV_MMCV_HOME, None)
+    os.environ.pop(ENV_RFLIB_HOME, None)
     os.environ.pop(ENV_XDG_CACHE_HOME, None)
     with pytest.warns(
             Warning,
@@ -102,7 +102,7 @@ def test_load_external_url():
         assert url == 'url:https://localhost/train.pth'
 
     # test openmmlab:// with deprecated model name
-    os.environ.pop(ENV_MMCV_HOME, None)
+    os.environ.pop(ENV_RFLIB_HOME, None)
     os.environ.pop(ENV_XDG_CACHE_HOME, None)
     with pytest.warns(
             Warning,
@@ -111,18 +111,18 @@ def test_load_external_url():
         url = _load_checkpoint('openmmlab://train_old')
         assert url == 'url:https://localhost/train.pth'
 
-    # test open-mmlab:// with user-defined MMCV_HOME
-    os.environ.pop(ENV_MMCV_HOME, None)
-    mmcv_home = osp.join(osp.dirname(__file__), 'data/model_zoo/mmcv_home')
-    os.environ[ENV_MMCV_HOME] = mmcv_home
+    # test open-mmlab:// with user-defined RFLIB_HOME
+    os.environ.pop(ENV_RFLIB_HOME, None)
+    rflib_home = osp.join(osp.dirname(__file__), 'data/model_zoo/rflib_home')
+    os.environ[ENV_RFLIB_HOME] = rflib_home
     url = _load_checkpoint('open-mmlab://train')
     assert url == 'url:https://localhost/train.pth'
     with pytest.raises(IOError, match='train.pth is not a checkpoint ' 'file'):
         _load_checkpoint('open-mmlab://train_empty')
     url = _load_checkpoint('open-mmlab://test')
-    assert url == f'local:{osp.join(_get_mmcv_home(), "test.pth")}'
+    assert url == f'local:{osp.join(_get_rflib_home(), "test.pth")}'
     url = _load_checkpoint('open-mmlab://val')
-    assert url == f'local:{osp.join(_get_mmcv_home(), "val.pth")}'
+    assert url == f'local:{osp.join(_get_rflib_home(), "val.pth")}'
 
     # test http:// https://
     url = _load_checkpoint('http://localhost/train.pth')
@@ -131,5 +131,5 @@ def test_load_external_url():
     # test local file
     with pytest.raises(IOError, match='train.pth is not a checkpoint ' 'file'):
         _load_checkpoint('train.pth')
-    url = _load_checkpoint(osp.join(_get_mmcv_home(), 'test.pth'))
-    assert url == f'local:{osp.join(_get_mmcv_home(), "test.pth")}'
+    url = _load_checkpoint(osp.join(_get_rflib_home(), 'test.pth'))
+    assert url == f'local:{osp.join(_get_rflib_home(), "test.pth")}'

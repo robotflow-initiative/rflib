@@ -2,7 +2,7 @@ import sys
 
 import pytest
 
-import mmcv
+import rflib
 
 
 def test_collect_env():
@@ -11,12 +11,12 @@ def test_collect_env():
     except ModuleNotFoundError:
         pytest.skip('skipping tests that require PyTorch')
 
-    from mmcv.utils import collect_env
+    from rflib.utils import collect_env
     env_info = collect_env()
     expected_keys = [
         'sys.platform', 'Python', 'CUDA available', 'PyTorch',
-        'PyTorch compiling details', 'OpenCV', 'MMCV', 'MMCV Compiler',
-        'MMCV CUDA Compiler'
+        'PyTorch compiling details', 'OpenCV', 'RFLIB', 'RFLIB Compiler',
+        'RFLIB CUDA Compiler'
     ]
     for key in expected_keys:
         assert key in env_info
@@ -30,4 +30,4 @@ def test_collect_env():
 
     assert env_info['sys.platform'] == sys.platform
     assert env_info['Python'] == sys.version.replace('\n', '')
-    assert env_info['MMCV'] == mmcv.__version__
+    assert env_info['RFLIB'] == rflib.__version__

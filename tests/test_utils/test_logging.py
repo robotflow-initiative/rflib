@@ -5,7 +5,7 @@ from unittest.mock import patch
 
 import pytest
 
-from mmcv import get_logger, print_log
+from rflib import get_logger, print_log
 
 if platform.system() == 'Windows':
     import regex as re
@@ -73,11 +73,11 @@ def test_print_log_silent(capsys, caplog):
 
 
 def test_print_log_logger(caplog):
-    print_log('welcome', logger='mmcv')
-    assert caplog.record_tuples[-1] == ('mmcv', logging.INFO, 'welcome')
+    print_log('welcome', logger='rflib')
+    assert caplog.record_tuples[-1] == ('rflib', logging.INFO, 'welcome')
 
-    print_log('welcome', logger='mmcv', level=logging.ERROR)
-    assert caplog.record_tuples[-1] == ('mmcv', logging.ERROR, 'welcome')
+    print_log('welcome', logger='rflib', level=logging.ERROR)
+    assert caplog.record_tuples[-1] == ('rflib', logging.ERROR, 'welcome')
 
     with tempfile.NamedTemporaryFile() as f:
         logger = get_logger('abc', log_file=f.name)
