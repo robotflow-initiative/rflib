@@ -167,7 +167,7 @@ def get_extensions():
 setup(
     name='rflib',
     version=get_version(),
-    description='RobotFlow Foundation',
+    description='RobotFlow Foundation Library',
     keywords='computer vision',
     packages=find_packages(),
     include_package_data=True,
