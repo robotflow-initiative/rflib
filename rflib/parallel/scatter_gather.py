@@ -1,4 +1,4 @@
-# Copyright (c) RobotFlow. All rights reserved.
+# Copyright (c) Open-MMLab. All rights reserved.
 import torch
 from torch.nn.parallel._functions import Scatter as OrigScatter
 

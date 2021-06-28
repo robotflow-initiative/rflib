@@ -2,11 +2,8 @@
 #define NMS_CUDA_KERNEL_CUH
 
 #include <float.h>
-#ifdef RFLIB_WITH_TRT
-#include "common_cuda_helper.hpp"
-#else  // RFLIB_WITH_TRT
+
 #include "pytorch_cuda_helper.hpp"
-#endif  // RFLIB_WITH_TRT
 
 #define DIVUP(m, n) ((m) / (n) + ((m) % (n) > 0))
 int const threadsPerBlock = sizeof(unsigned long long int) * 8;

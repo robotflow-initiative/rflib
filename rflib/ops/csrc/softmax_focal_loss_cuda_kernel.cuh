@@ -1,6 +1,7 @@
 #ifndef SOFTMAX_FOCAL_LOSS_CUDA_KERNEL_CUH
 #define SOFTMAX_FOCAL_LOSS_CUDA_KERNEL_CUH
 
+
 #include "pytorch_cuda_helper.hpp"
 
 template <typename T>

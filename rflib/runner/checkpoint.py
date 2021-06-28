@@ -1,4 +1,4 @@
-# Copyright (c) RobotFlow. All rights reserved.
+# Copyright (c) Open-MMLab. All rights reserved.
 import io
 import os
 import os.path as osp
@@ -119,24 +119,17 @@ def get_torchvision_models():
 
 
 def get_external_models():
-    mmcv_home = _get_rflib_home()
+    rflib_home = _get_rflib_home()
     default_json_path = osp.join(rflib.__path__[0], 'model_zoo/open_mmlab.json')
     default_urls = load_file(default_json_path)
     assert isinstance(default_urls, dict)
-    external_json_path = osp.join(mmcv_home, 'open_mmlab.json')
+    external_json_path = osp.join(rflib_home, 'open_mmlab.json')
     if osp.exists(external_json_path):
         external_urls = load_file(external_json_path)
         assert isinstance(external_urls, dict)
         default_urls.update(external_urls)
 
     return default_urls
-
-
-def get_mmcls_models():
-    mmcls_json_path = osp.join(rflib.__path__[0], 'model_zoo/mmcls.json')
-    mmcls_urls = load_file(mmcls_json_path)
-
-    return mmcls_urls
 
 
 def _process_mmcls_checkpoint(checkpoint):
@@ -284,7 +277,8 @@ def load_from_http(filename, map_location=None, model_dir=None):
 @CheckpointLoader.register_scheme(prefixes='pavi://')
 def load_from_pavi(filename, map_location=None):
     """load checkpoint through the file path prefixed with pavi. In distributed
-    setting, this function only download checkpoint at local rank 0.
+    setting, this function download ckpt at all ranks to different temporary
+    directories.
 
     Args:
         filename (str): checkpoint file path with pavi prefix
@@ -303,30 +297,20 @@ def load_from_pavi(filename, map_location=None):
     except ImportError:
         raise ImportError(
             'Please install pavi to load checkpoint from modelcloud.')
-    rank, world_size = get_dist_info()
-    rank = int(os.environ.get('LOCAL_RANK', rank))
-    if rank == 0:
-        model = modelcloud.get(model_path)
-        with TemporaryDirectory() as tmp_dir:
-            downloaded_file = osp.join(tmp_dir, model.name)
-            model.download(downloaded_file)
-            checkpoint = torch.load(downloaded_file, map_location=map_location)
-    if world_size > 1:
-        torch.distributed.barrier()
-        if rank > 0:
-            model = modelcloud.get(model_path)
-            with TemporaryDirectory() as tmp_dir:
-                downloaded_file = osp.join(tmp_dir, model.name)
-                model.download(downloaded_file)
-                checkpoint = torch.load(
-                    downloaded_file, map_location=map_location)
+
+    model = modelcloud.get(model_path)
+    with TemporaryDirectory() as tmp_dir:
+        downloaded_file = osp.join(tmp_dir, model.name)
+        model.download(downloaded_file)
+        checkpoint = torch.load(downloaded_file, map_location=map_location)
     return checkpoint
 
 
 @CheckpointLoader.register_scheme(prefixes='s3://')
 def load_from_ceph(filename, map_location=None, backend='ceph'):
-    """load checkpoint through the file path prefixed with s3. In distributed
-    setting, this function only download checkpoint at local rank 0.
+    """load checkpoint through the file path prefixed with s3.  In distributed
+    setting, this function download ckpt at all ranks to different temporary
+    directories.
 
     Args:
         filename (str): checkpoint file path with s3 prefix
@@ -337,21 +321,14 @@ def load_from_ceph(filename, map_location=None, backend='ceph'):
     Returns:
         dict or OrderedDict: The loaded checkpoint.
     """
-    rank, world_size = get_dist_info()
-    rank = int(os.environ.get('LOCAL_RANK', rank))
+
     allowed_backends = ['ceph']
     if backend not in allowed_backends:
         raise ValueError(f'Load from Backend {backend} is not supported.')
-    if rank == 0:
-        fileclient = FileClient(backend=backend)
-        buffer = io.BytesIO(fileclient.get(filename))
-        checkpoint = torch.load(buffer, map_location=map_location)
-    if world_size > 1:
-        torch.distributed.barrier()
-        if rank > 0:
-            fileclient = FileClient(backend=backend)
-            buffer = io.BytesIO(fileclient.get(filename))
-            checkpoint = torch.load(buffer, map_location=map_location)
+
+    fileclient = FileClient(backend=backend)
+    buffer = io.BytesIO(fileclient.get(filename))
+    checkpoint = torch.load(buffer, map_location=map_location)
     return checkpoint
 
 
@@ -410,26 +387,6 @@ def load_from_openmmlab(filename, map_location=None):
         if not osp.isfile(filename):
             raise IOError(f'{filename} is not a checkpoint file')
         checkpoint = torch.load(filename, map_location=map_location)
-    return checkpoint
-
-
-@CheckpointLoader.register_scheme(prefixes='mmcls://')
-def load_from_mmcls(filename, map_location=None):
-    """load checkpoint through the file path prefixed with mmcls.
-
-    Args:
-        filename (str): checkpoint file path with mmcls prefix
-        map_location (str, optional): Same as :func:`torch.load`.
-
-    Returns:
-        dict or OrderedDict: The loaded checkpoint.
-    """
-
-    model_urls = get_mmcls_models()
-    model_name = filename[8:]
-    checkpoint = load_from_http(
-        model_urls[model_name], map_location=map_location)
-    checkpoint = _process_mmcls_checkpoint(checkpoint)
     return checkpoint
 
 
@@ -625,7 +582,7 @@ def save_checkpoint(model, filename, optimizer=None, meta=None):
         meta = {}
     elif not isinstance(meta, dict):
         raise TypeError(f'meta must be a dict or None, but got {type(meta)}')
-    meta.update(mmcv_version=rflib.__version__, time=time.asctime())
+    meta.update(rflib_version=rflib.__version__, time=time.asctime())
 
     if is_module_wrapper(model):
         model = model.module
@@ -649,7 +606,7 @@ def save_checkpoint(model, filename, optimizer=None, meta=None):
     if filename.startswith('pavi://'):
         try:
             from pavi import modelcloud
-            from pavi.exception import NodeNotFoundError
+            from pavi import exception
         except ImportError:
             raise ImportError(
                 'Please install pavi to load checkpoint from modelcloud.')
@@ -658,7 +615,7 @@ def save_checkpoint(model, filename, optimizer=None, meta=None):
         model_dir, model_name = osp.split(model_path)
         try:
             model = modelcloud.get(model_dir)
-        except NodeNotFoundError:
+        except exception.NodeNotFoundError:
             model = root.create_training_model(model_dir)
         with TemporaryDirectory() as tmp_dir:
             checkpoint_file = osp.join(tmp_dir, model_name)

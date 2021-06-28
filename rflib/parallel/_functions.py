@@ -1,4 +1,4 @@
-# Copyright (c) RobotFlow. All rights reserved.
+# Copyright (c) Open-MMLab. All rights reserved.
 import torch
 from torch.nn.parallel._functions import _get_stream
 
@@ -23,7 +23,7 @@ def scatter(input, devices, streams=None):
             with torch.cuda.device(devices[0]), torch.cuda.stream(stream):
                 output = output.cuda(devices[0], non_blocking=True)
         else:
-            # unsquzee the first dimension thus the tensor's shape is the
+            # unsqueeze the first dimension thus the tensor's shape is the
             # same as those scattered with GPU.
             output = output.unsqueeze(0)
         return output

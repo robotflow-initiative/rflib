@@ -10,14 +10,8 @@ import torch.nn as nn
 from rflib.utils import TORCH_VERSION
 from .dist_utils import allreduce_grads as _allreduce_grads
 
-try:
-    # If PyTorch version >= 1.6.0, torch.cuda.amp.autocast would be imported
-    # and used; otherwise, auto fp16 will adopt rflib's implementation.
-    # Note that when PyTorch >= 1.6.0, we still cast tensor types to fp16
-    # manually, so the behavior may not be consistant with real amp.
-    from torch.cuda.amp import autocast
-except ImportError:
-    pass
+from torch.cuda.amp import autocast
+
 
 
 def cast_tensor_type(inputs, src_type, dst_type):
@@ -31,7 +25,9 @@ def cast_tensor_type(inputs, src_type, dst_type):
     Returns:
         The same type with inputs, but all contained Tensors have been cast.
     """
-    if isinstance(inputs, torch.Tensor):
+    if isinstance(inputs, nn.Module):
+        return inputs
+    elif isinstance(inputs, torch.Tensor):
         return inputs.to(dst_type)
     elif isinstance(inputs, str):
         return inputs
@@ -119,10 +115,7 @@ def auto_fp16(apply_to=None, out_fp32=False):
                     else:
                         new_kwargs[arg_name] = arg_value
             # apply converted arguments to the decorated method
-            if TORCH_VERSION >= '1.6.0':
-                with autocast(enabled=True):
-                    output = old_func(*new_args, **new_kwargs)
-            else:
+            with autocast(enabled=True):
                 output = old_func(*new_args, **new_kwargs)
             # cast the results back to fp32 if necessary
             if out_fp32:
@@ -204,10 +197,7 @@ def force_fp32(apply_to=None, out_fp16=False):
                     else:
                         new_kwargs[arg_name] = arg_value
             # apply converted arguments to the decorated method
-            if TORCH_VERSION >= '1.6.0':
-                with autocast(enabled=False):
-                    output = old_func(*new_args, **new_kwargs)
-            else:
+            with autocast(enabled=False):
                 output = old_func(*new_args, **new_kwargs)
             # cast the results back to fp32 if necessary
             if out_fp16:
@@ -235,43 +225,14 @@ def wrap_fp16_model(model):
     For PyTorch >= 1.6, this function will
     1. Set fp16 flag inside the model to True.
 
-    Otherwise:
-    1. Convert FP32 model to FP16.
-    2. Remain some necessary layers to be FP32, e.g., normalization layers.
-    3. Set `fp16_enabled` flag inside the model to True.
-
     Args:
         model (nn.Module): Model in FP32.
     """
-    if TORCH_VERSION < '1.6.0':
-        # convert model to fp16
-        model.half()
-        # patch the normalization layers to make it work in fp32 mode
-        patch_norm_fp32(model)
     # set `fp16_enabled` flag
     for m in model.modules():
         if hasattr(m, 'fp16_enabled'):
             m.fp16_enabled = True
 
-
-def patch_norm_fp32(module):
-    """Recursively convert normalization layers from FP16 to FP32.
-
-    Args:
-        module (nn.Module): The modules to be converted in FP16.
-
-    Returns:
-        nn.Module: The converted module, the normalization layers have been
-            converted to FP32.
-    """
-    if isinstance(module, (nn.modules.batchnorm._BatchNorm, nn.GroupNorm)):
-        module.float()
-        if isinstance(module, nn.GroupNorm) or torch.__version__ < '1.3':
-            module.forward = patch_forward_method(module.forward, torch.half,
-                                                  torch.float)
-    for child in module.children():
-        patch_norm_fp32(child)
-    return module
 
 
 def patch_forward_method(func, src_type, dst_type, convert_output=True):
@@ -375,6 +336,29 @@ class LossScaler:
                     self.scale_window == 0:
                 self.cur_scale *= self.scale_factor
         self.cur_iter += 1
+
+    def state_dict(self):
+        """Returns the state of the scaler as a :class:`dict`."""
+        return dict(
+            cur_scale=self.cur_scale,
+            cur_iter=self.cur_iter,
+            mode=self.mode,
+            last_overflow_iter=self.last_overflow_iter,
+            scale_factor=self.scale_factor,
+            scale_window=self.scale_window)
+
+    def load_state_dict(self, state_dict):
+        """Loads the loss_scaler state dict.
+
+        Args:
+           state_dict (dict): scaler state.
+        """
+        self.cur_scale = state_dict['cur_scale']
+        self.cur_iter = state_dict['cur_iter']
+        self.mode = state_dict['mode']
+        self.last_overflow_iter = state_dict['last_overflow_iter']
+        self.scale_factor = state_dict['scale_factor']
+        self.scale_window = state_dict['scale_window']
 
     @property
     def loss_scale(self):

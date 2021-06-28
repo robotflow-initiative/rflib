@@ -1,6 +1,6 @@
 import torch
 
-from rflib.utils import ext_loader
+from ..utils import ext_loader
 
 ext_module = ext_loader.load_ext(
     '_ext', ['boxes_iou_bev_gpu', 'nms3d_gpu',

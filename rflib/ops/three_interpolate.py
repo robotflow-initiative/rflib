@@ -2,7 +2,7 @@ import torch
 from torch.autograd import Function
 from typing import Tuple
 
-from rflib.utils import ext_loader
+from ..utils import ext_loader
 
 ext_module = ext_loader.load_ext(
     '_ext', ['three_interpolate_wrapper', 'three_interpolate_grad_wrapper'])

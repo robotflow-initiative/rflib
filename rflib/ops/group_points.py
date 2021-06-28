@@ -5,7 +5,7 @@ from typing import Tuple
 
 from .ball_query import ball_query
 
-from rflib.utils import ext_loader
+from ..utils import ext_loader
 
 ext_module = ext_loader.load_ext(
     '_ext', ['group_points_forward', 'group_points_backward',])
@@ -128,7 +128,7 @@ class GroupAll(nn.Module):
 
     def forward(self,
                 xyz: torch.Tensor,
-                new_xyz: torch.Tensor,
+                new_xyz: torch.Tensor = None,
                 features: torch.Tensor = None):
         """forward.
 

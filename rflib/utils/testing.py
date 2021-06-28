@@ -1,6 +1,25 @@
 # Copyright (c) RobotFlow.
+import sys
 from collections.abc import Iterable
+from runpy import run_path
+from shlex import split
 from typing import Any, Dict, List
+from unittest.mock import patch
+
+
+def check_python_script(cmd):
+    """Run the python cmd script with `__main__`. The difference between
+    `os.system` is that, this function exectues code in the current process, so
+    that it can be tracked by coverage tools. Currently it supports two forms:
+
+    - ./tests/data/scripts/hello.py zz
+    - python tests/data/scripts/hello.py zz
+    """
+    args = split(cmd)
+    if args[0] == 'python':
+        args = args[1:]
+    with patch.object(sys, 'argv', args):
+        run_path(args[0], run_name='__main__')
 
 
 def _any(judge_result):
@@ -92,7 +111,8 @@ def assert_is_norm_layer(module) -> bool:
     Returns:
         bool: Whether the module is a norm layer.
     """
-    from .torch_wrapper import _BatchNorm, _InstanceNorm
+    from torch.nn.modules.instancenorm import _InstanceNorm
+    from torch.nn.modules.batchnorm import _BatchNorm
     from torch.nn import GroupNorm, LayerNorm
     norm_layer_candidates = (_BatchNorm, _InstanceNorm, GroupNorm, LayerNorm)
     return isinstance(module, norm_layer_candidates)

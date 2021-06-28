@@ -68,7 +68,7 @@ class PointSAModuleMSG(nn.Module):
 
         if isinstance(num_point, int):
             self.num_point = [num_point]
-        elif isinstance(num_point, list) or isinstance(num_point, tuple):
+        elif isinstance(num_point, list) or isinstance(num_point, tuple) or isinstance(num_point, type(None)):
             self.num_point = num_point
         else:
             raise NotImplementedError('Error type of num_point!')
@@ -76,16 +76,18 @@ class PointSAModuleMSG(nn.Module):
         self.pool_mod = pool_mod
         self.groupers = nn.ModuleList()
         self.mlps = nn.ModuleList()
-        self.fps_mod_list = fps_mod
-        self.fps_sample_range_list = fps_sample_range_list
 
-        self.points_sampler = Points_Sampler(self.num_point, self.fps_mod_list,
-                                             self.fps_sample_range_list)
+        if self.num_point is not None:
 
-        for i in range(len(radii)):
-            radius = radii[i]
-            sample_num = sample_nums[i]
-            if num_point is not None:
+            self.fps_mod_list = fps_mod
+            self.fps_sample_range_list = fps_sample_range_list
+
+            self.points_sampler = Points_Sampler(self.num_point, self.fps_mod_list,
+                                                 self.fps_sample_range_list)
+
+            for i in range(len(radii)):
+                radius = radii[i]
+                sample_num = sample_nums[i]
                 if dilated_group and i != 0:
                     min_radius = radii[i - 1]
                 else:
@@ -96,10 +98,13 @@ class PointSAModuleMSG(nn.Module):
                     min_radius=min_radius,
                     use_xyz=use_xyz,
                     normalize_xyz=normalize_xyz)
-            else:
-                grouper = GroupAll(use_xyz)
-            self.groupers.append(grouper)
+                self.groupers.append(grouper)
+        else:
+            for i in range(len(radii)):
+                self.groupers.append(GroupAll(use_xyz))
 
+
+        for i in range(len(mlp_channels)):
             mlp_spec = mlp_channels[i]
             if use_xyz:
                 mlp_spec[0] += 3
@@ -144,17 +149,22 @@ class PointSAModuleMSG(nn.Module):
                 Index of the features.
         """
         new_features_list = []
-        xyz_flipped = points_xyz.transpose(1, 2).contiguous()
-        if indices is not None:
-            assert (indices.shape[1] == self.num_point[0])
-            new_xyz = gather_points(xyz_flipped, indices).transpose(
-                1, 2).contiguous() if self.num_point is not None else None
-        elif target_xyz is not None:
-            new_xyz = target_xyz.contiguous()
+        if self.num_point is not None:
+            xyz_flipped = points_xyz.transpose(1, 2).contiguous()
+            if indices is not None:
+                assert (indices.shape[1] == self.num_point[0])
+                new_xyz = gather_points(xyz_flipped, indices).transpose(
+                    1, 2).contiguous() if self.num_point is not None else None
+            elif target_xyz is not None:
+                new_xyz = target_xyz.contiguous()
+            else:
+                indices = self.points_sampler(points_xyz, features)
+                new_xyz = gather_points(xyz_flipped, indices).transpose(
+                    1, 2).contiguous() if self.num_point is not None else None
         else:
-            indices = self.points_sampler(points_xyz, features)
-            new_xyz = gather_points(xyz_flipped, indices).transpose(
-                1, 2).contiguous() if self.num_point is not None else None
+            B, N, C = points_xyz.shape
+            new_xyz = torch.zeros(B, 1, C).to(points_xyz)
+
 
         for i in range(len(self.groupers)):
             # (B, C, num_point, nsample)

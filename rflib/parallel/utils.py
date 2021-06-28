@@ -1,4 +1,4 @@
-# Copyright (c) RobotFlow. All rights reserved.
+# Copyright (c) Open-MMLab. All rights reserved.
 from .registry import MODULE_WRAPPERS
 
 
@@ -7,7 +7,7 @@ def is_module_wrapper(module):
 
     The following 3 modules in RFLIB (and their subclasses) are regarded as
     module wrappers: DataParallel, DistributedDataParallel,
-    MMDistributedDataParallel (the deprecated version). You may add you own
+    RFDistributedDataParallel (the deprecated version). You may add you own
     module wrapper by registering it to rflib.parallel.MODULE_WRAPPERS.
 
     Args:

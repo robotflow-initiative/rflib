@@ -1,0 +1,6 @@
+coverage
+lmdb
+pytest
+PyTurboJPEG
+scipy
+tiffile

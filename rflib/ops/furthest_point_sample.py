@@ -1,7 +1,7 @@
 import torch
 from torch.autograd import Function
 
-from rflib.utils import ext_loader
+from ..utils import ext_loader
 
 ext_module = ext_loader.load_ext(
     '_ext', ['furthest_point_sampling_wrapper', ])

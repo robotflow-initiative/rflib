@@ -1,17 +1,17 @@
-# Copyright (c) RobotFlow. All rights reserved.
+# Copyright (c) Open-MMLab. All rights reserved.
 import torch
 from torch.nn.parallel.distributed import (DistributedDataParallel,
                                            _find_tensors)
 
-from rflib.utils import print_log
+from rflib import print_log
 from rflib.utils import TORCH_VERSION
 from .scatter_gather import scatter_kwargs
 
 
-class MMDistributedDataParallel(DistributedDataParallel):
+class RFDistributedDataParallel(DistributedDataParallel):
     """The DDP module that supports DataContainer.
 
-    MMDDP has two main differences with PyTorch DDP:
+    RFDDP has two main differences with PyTorch DDP:
 
     - It supports a custom type :class:`DataContainer` which allows more
       flexible control of input data.
@@ -40,7 +40,7 @@ class MMDistributedDataParallel(DistributedDataParallel):
         if (TORCH_VERSION >= '1.7') and self.reducer._rebuild_buckets():
             print_log(
                 'Reducer buckets have been rebuilt in this iteration.',
-                logger='rflib')
+                logger='mmcv')
 
         if getattr(self, 'require_forward_param_sync', True):
             self._sync_params()
@@ -62,8 +62,7 @@ class MMDistributedDataParallel(DistributedDataParallel):
             else:
                 self.reducer.prepare_for_backward([])
         else:
-            if TORCH_VERSION > '1.2':
-                self.require_forward_param_sync = False
+            self.require_forward_param_sync = False
         return output
 
     def val_step(self, *inputs, **kwargs):
@@ -79,7 +78,7 @@ class MMDistributedDataParallel(DistributedDataParallel):
         if (TORCH_VERSION >= '1.7') and self.reducer._rebuild_buckets():
             print_log(
                 'Reducer buckets have been rebuilt in this iteration.',
-                logger='rflib')
+                logger='mmcv')
 
         if getattr(self, 'require_forward_param_sync', True):
             self._sync_params()
@@ -101,6 +100,5 @@ class MMDistributedDataParallel(DistributedDataParallel):
             else:
                 self.reducer.prepare_for_backward([])
         else:
-            if TORCH_VERSION > '1.2':
-                self.require_forward_param_sync = False
+            self.require_forward_param_sync = False
         return output

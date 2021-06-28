@@ -2,8 +2,9 @@ import warnings
 
 import torch
 from torch.nn import GroupNorm, LayerNorm
+from torch.nn.modules.instancenorm import _InstanceNorm
+from torch.nn.modules.batchnorm import _BatchNorm
 
-from rflib.utils.torch_wrapper import _BatchNorm, _InstanceNorm
 from rflib.utils import build_from_cfg, is_list_of
 from rflib.utils.ext_loader import check_ops_exist
 from .builder import OPTIMIZER_BUILDERS, OPTIMIZERS
@@ -52,7 +53,7 @@ class DefaultOptimizerConstructor:
             ``dcn_offset_lr_mult``. If you wish to apply both of them to the
             offset layer in deformable convs, set ``dcn_offset_lr_mult``
             to the original ``dcn_offset_lr_mult`` * ``bias_lr_mult``.
-        2. If the option ``dcn_offset_lr_mult`` is used, the construtor will
+        2. If the option ``dcn_offset_lr_mult`` is used, the constructor will
             apply it to all the DCN layers in the model. So be carefull when
             the model contains multiple DCN layers in places other than
             backbone.

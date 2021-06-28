@@ -1,4 +1,4 @@
-# Copyright (c) RobotFlow. All rights reserved.
+# Copyright (c) Open-MMLab. All rights reserved.
 from collections.abc import Mapping, Sequence
 
 import torch
@@ -13,7 +13,7 @@ def collate(batch, samples_per_gpu=1):
     batch size.
 
     Extend default_collate to add support for
-    :type:`~rflib.parallel.DataContainer`. There are 3 cases.
+    :type:`~mmcv.parallel.DataContainer`. There are 3 cases.
 
     1. cpu_only = True, e.g., meta data
     2. cpu_only = False, stack = True, e.g., images tensors

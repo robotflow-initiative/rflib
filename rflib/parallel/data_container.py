@@ -1,4 +1,4 @@
-# Copyright (c) RobotFlow. All rights reserved.
+# Copyright (c) Open-MMLab. All rights reserved.
 import functools
 
 import torch
@@ -25,7 +25,7 @@ class DataContainer:
     1. All tensors have to be the same size.
     2. Types are limited (numpy array or Tensor).
 
-    We design `DataContainer` and `MMDataParallel` to overcome these
+    We design `DataContainer` and `RFDataParallel` to overcome these
     limitations. The behavior can be either of the following.
 
     - copy to GPU, pad all tensors to the same size and stack them

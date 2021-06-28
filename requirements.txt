@@ -1,3 +1,5 @@
-onnx==1.7.0
-onnxruntime==1.5.1
-packaging
+addict
+numpy
+pyyaml
+regex;sys_platform=='win32'
+yapf
