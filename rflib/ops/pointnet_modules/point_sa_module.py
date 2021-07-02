@@ -163,7 +163,7 @@ class PointSAModuleMSG(nn.Module):
                     1, 2).contiguous() if self.num_point is not None else None
         else:
             B, N, C = points_xyz.shape
-            new_xyz = torch.zeros(B, 1, C).to(points_xyz)
+            new_xyz = torch.zeros(B, 1, C).to(points_xyz.device)
 
 
         for i in range(len(self.groupers)):
