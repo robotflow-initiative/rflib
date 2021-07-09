@@ -3,8 +3,10 @@ from .builder import RUNNERS
 
 
 @RUNNERS.register_module()
-class HandTailorRunner(EpochBasedRunner):
+class EpochControlledRunner(EpochBasedRunner):
     def run_iter(self, data_batch, train_mode, **kwargs):
+        # 'self._epoch' is added to 'self.model.train_step' and 'self.model.val_step' so that the
+        # training process can be controlled by epoch.
         if self.batch_processor is not None:
             outputs = self.batch_processor(
                 self.model, data_batch, train_mode=train_mode, **kwargs)
