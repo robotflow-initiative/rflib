@@ -22,6 +22,7 @@ from .optimizer import (OPTIMIZER_BUILDERS, OPTIMIZERS,
                         build_optimizer_constructor)
 from .priority import Priority, get_priority
 from .utils import get_host_info, get_time_str, obj_from_dict, set_random_seed
+from .epoch_controlled_runner import EpochControlledRunner
 
 __all__ = [
     'BaseRunner', 'Runner', 'EpochBasedRunner', 'IterBasedRunner', 'LogBuffer',
@@ -39,5 +40,5 @@ __all__ = [
     'SyncBuffersHook', 'EMAHook', 'build_runner', 'RUNNERS', 'allreduce_grads',
     'allreduce_params', 'LossScaler', 'CheckpointLoader', 'BaseModule',
     '_load_checkpoint_with_prefix', 'EvalHook', 'DistEvalHook', 'Sequential',
-    'ModuleList'
+    'ModuleList', 'EpochControlledRunner'
 ]

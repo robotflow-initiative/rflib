@@ -1,5 +1,5 @@
 import warnings
-
+import sys
 import torch.nn as nn
 
 from ..utils import constant_init, kaiming_init
@@ -104,7 +104,10 @@ class ConvModule(nn.Module):
         self.with_bias = bias
 
         if self.with_norm and self.with_bias:
-            warnings.warn('ConvModule has norm and bias at the same time')
+            msg = f"ConvModule has norm and bias at the same time, " \
+                  f"called from file {sys._getframe().f_back.f_code.co_filename}, " \
+                  f"line {sys._getframe().f_back.f_lineno}"
+            warnings.warn(msg)
 
         if self.with_explicit_padding:
             pad_cfg = dict(type=padding_mode)
