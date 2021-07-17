@@ -181,7 +181,7 @@ setup(
         'Programming Language :: Python :: 3.8',
         'Topic :: Utilities',
     ],
-    url='https://github.com/WenqiangX/rflib',
+    url='https://github.com/mvig-robotflow/rflib',
     author='RFLib Authors',
     author_email='vinjohn@sjtu.edu.cn',
     setup_requires=['pytest-runner'],
