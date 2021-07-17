@@ -4,7 +4,6 @@ from functools import partial
 
 from .misc import is_seq_of
 
-
 def build_from_cfg(cfg, registry, default_args=None):
     """Build a module from config dict.
 
