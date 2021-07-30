@@ -93,6 +93,8 @@ def load_state_dict(module, state_dict, strict=False, logger=None):
         err_msg.append(
             f'missing keys in source state_dict: {", ".join(missing_keys)}\n')
 
+
+
     rank, _ = get_dist_info()
     if len(err_msg) > 0 and rank == 0:
         err_msg.insert(
@@ -104,6 +106,11 @@ def load_state_dict(module, state_dict, strict=False, logger=None):
             logger.warning(err_msg)
         else:
             print(err_msg)
+    else:
+        if logger is not None:
+            logger.info('The model and loaded state dict match exactly')
+        else:
+            print('The model and loaded state dict match exactly')
 
 
 def get_torchvision_models():

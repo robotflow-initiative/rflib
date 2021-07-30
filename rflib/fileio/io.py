@@ -9,7 +9,7 @@ file_handlers = {
     'yaml': YamlHandler(),
     'yml': YamlHandler(),
     'pickle': PickleHandler(),
-    'pkl': PickleHandler(),
+    'pkl': PickleHandler()
 }
 
 
