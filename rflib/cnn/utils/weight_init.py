@@ -435,11 +435,15 @@ def _initialize(module, cfg, wholemodule=False):
 
 
 def _initialize_override(module, override, cfg):
-    if not isinstance(override, (dict, list)):
-        raise TypeError(f'override must be a dict or a list of dict, \
+    if not isinstance(override, (dict, list, str)):
+        raise TypeError(f'override must be str, a dict or a list of dict, \
                 but got {type(override)}')
 
-    override = [override] if isinstance(override, dict) else override
+    if isinstance(override, str):
+        override = [dict(type='Pretrained', checkpoint=override)]
+
+    elif isinstance(override, dict):
+        override = [override]
 
     for override_ in override:
 
@@ -512,9 +516,12 @@ def initialize(module, init_cfg):
         >>> init_cfg = dict(type='Pretrained',
                 checkpoint=url, prefix='backbone.')
     """
-    if not isinstance(init_cfg, (dict, list)):
-        raise TypeError(f'init_cfg must be a dict or a list of dict, \
+    if not isinstance(init_cfg, (dict, list, str)):
+        raise TypeError(f'init_cfg must be str, a dict or a list of dict, \
                 but got {type(init_cfg)}')
+
+    if isinstance(init_cfg, str):
+        init_cfg = [dict(type='Pretrained', checkpoint=init_cfg)]
 
     if isinstance(init_cfg, dict):
         init_cfg = [init_cfg]
