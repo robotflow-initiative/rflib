@@ -57,7 +57,9 @@ class EvalHook(Hook):
     init_value_map = {'greater': -inf, 'less': inf}
     greater_keys = [
         'acc', 'top', 'AR@', 'auc', 'precision', 'mAP', 'mDice', 'mIoU',
-        'mAcc', 'aAcc'
+        'mAcc', 'aAcc',
+        # pose
+        'AUC', 'PCK', 'EPE', 'MRRPE', 'MPJPE', 'Handedness_acc', 'MPJPE_all'
     ]
     less_keys = ['loss']
 

@@ -175,9 +175,27 @@ void three_interpolate_grad_wrapper(int b, int c, int n, int m,
     at::Tensor weight_tensor,
     at::Tensor grad_points_tensor);
 
-void knn(at::Tensor& ref, at::Tensor& query, at::Tensor& idx);
+std::vector<at::Tensor> knn(at::Tensor& ref, at::Tensor& query, const int k);
+
+at::Tensor SigmoidFocalLoss_solo_backward(const at::Tensor &logits,
+                                     const at::Tensor &targets,
+                                     const at::Tensor &d_losses,
+                                     const int num_classes, const float gamma,
+                                     const float alpha);
+
+at::Tensor SigmoidFocalLoss_solo_forward(const at::Tensor &logits,
+                                    const at::Tensor &targets,
+                                    const int num_classes, const float gamma,
+                                    const float alpha);
+
 
 PYBIND11_MODULE(TORCH_EXTENSION_NAME, m) {
+  m.def("knn", &knn, "k-nearest neighbors");
+  m.def("sigmoid_focal_loss_solo_forward", &SigmoidFocalLoss_solo_forward,
+        "SigmoidFocalLoss forward (CUDA)");
+  m.def("sigmoid_focal_loss_solo_backward", &SigmoidFocalLoss_solo_backward,
+        "SigmoidFocalLoss backward (CUDA)");
+
   m.def("get_compiler_version", &get_compiler_version, "get_compiler_version");
   m.def("get_compiling_cuda_version", &get_compiling_cuda_version,
         "get_compiling_cuda_version");
@@ -282,8 +300,8 @@ PYBIND11_MODULE(TORCH_EXTENSION_NAME, m) {
         py::arg("grad_input"), py::arg("pooled_height"),
         py::arg("pooled_width"), py::arg("spatial_scale"),
         py::arg("sample_num"), py::arg("aligned"), py::arg("clockwise"));
-  
-  m.def("knn", &knn, "k-nearest neighbors");
+
+
   m.def("roiaware_pool3d_forward", &roiaware_pool3d_gpu, "roiaware pool3d forward (CUDA)");
   m.def("roiaware_pool3d_backward", &roiaware_pool3d_gpu_backward,
         "roiaware pool3d backward (CUDA)");
