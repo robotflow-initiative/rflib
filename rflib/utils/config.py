@@ -1,10 +1,13 @@
-# Copyright (c) RobotFlow. All rights reserved.
+# Copyright (c) OpenMMLab. All rights reserved.
 import ast
+import copy
+import os
 import os.path as osp
 import platform
 import shutil
 import sys
 import tempfile
+import uuid
 import warnings
 from argparse import Action, ArgumentParser
 from collections import abc
@@ -23,6 +26,7 @@ else:
 
 BASE_KEY = '_base_'
 DELETE_KEY = '_delete_'
+DEPRECATION_KEY = '_deprecation_'
 RESERVED_KEYS = ['filename', 'text', 'pretty_text']
 
 
@@ -121,6 +125,57 @@ class Config:
             tmp_config_file.write(config_file)
 
     @staticmethod
+    def _pre_substitute_base_vars(filename, temp_config_name):
+        """Substitute base variable placehoders to string, so that parsing
+        would work."""
+        with open(filename, 'r', encoding='utf-8') as f:
+            # Setting encoding explicitly to resolve coding issue on windows
+            config_file = f.read()
+        base_var_dict = {}
+        regexp = r'\{\{\s*' + BASE_KEY + r'\.([\w\.]+)\s*\}\}'
+        base_vars = set(re.findall(regexp, config_file))
+        for base_var in base_vars:
+            randstr = f'_{base_var}_{uuid.uuid4().hex.lower()[:6]}'
+            base_var_dict[randstr] = base_var
+            regexp = r'\{\{\s*' + BASE_KEY + r'\.' + base_var + r'\s*\}\}'
+            config_file = re.sub(regexp, f'"{randstr}"', config_file)
+        with open(temp_config_name, 'w') as tmp_config_file:
+            tmp_config_file.write(config_file)
+        return base_var_dict
+
+    @staticmethod
+    def _substitute_base_vars(cfg, base_var_dict, base_cfg):
+        """Substitute variable strings to their actual values."""
+        cfg = copy.deepcopy(cfg)
+
+        if isinstance(cfg, dict):
+            for k, v in cfg.items():
+                if isinstance(v, str) and v in base_var_dict:
+                    new_v = base_cfg
+                    for new_k in base_var_dict[v].split('.'):
+                        new_v = new_v[new_k]
+                    cfg[k] = new_v
+                elif isinstance(v, (list, tuple, dict)):
+                    cfg[k] = Config._substitute_base_vars(
+                        v, base_var_dict, base_cfg)
+        elif isinstance(cfg, tuple):
+            cfg = tuple(
+                Config._substitute_base_vars(c, base_var_dict, base_cfg)
+                for c in cfg)
+        elif isinstance(cfg, list):
+            cfg = [
+                Config._substitute_base_vars(c, base_var_dict, base_cfg)
+                for c in cfg
+            ]
+        elif isinstance(cfg, str) and cfg in base_var_dict:
+            new_v = base_cfg
+            for new_k in base_var_dict[cfg].split('.'):
+                new_v = new_v[new_k]
+            cfg = new_v
+
+        return cfg
+
+    @staticmethod
     def _file2dict(filename, use_predefined_variables=True):
         filename = osp.abspath(osp.expanduser(filename))
         check_file_exist(filename)
@@ -140,6 +195,9 @@ class Config:
                                                    temp_config_file.name)
             else:
                 shutil.copyfile(filename, temp_config_file.name)
+            # Substitute base variables from placeholders to strings
+            base_var_dict = Config._pre_substitute_base_vars(
+                temp_config_file.name, temp_config_file.name)
 
             if filename.endswith('.py'):
                 temp_module_name = osp.splitext(temp_config_name)[0]
@@ -159,6 +217,19 @@ class Config:
                 cfg_dict = rflib.load(temp_config_file.name)
             # close temp file
             temp_config_file.close()
+
+        # check deprecation information
+        if DEPRECATION_KEY in cfg_dict:
+            deprecation_info = cfg_dict.pop(DEPRECATION_KEY)
+            warning_msg = f'The config file {filename} will be deprecated ' \
+                'in the future.'
+            if 'expected' in deprecation_info:
+                warning_msg += f' Please use {deprecation_info["expected"]} ' \
+                    'instead.'
+            if 'reference' in deprecation_info:
+                warning_msg += ' More information can be found at ' \
+                    f'{deprecation_info["reference"]}'
+            warnings.warn(warning_msg)
 
         cfg_text = filename + '\n'
         with open(filename, 'r', encoding='utf-8') as f:
@@ -180,9 +251,15 @@ class Config:
 
             base_cfg_dict = dict()
             for c in cfg_dict_list:
-                if len(base_cfg_dict.keys() & c.keys()) > 0:
-                    raise KeyError('Duplicate key is not allowed among bases')
+                duplicate_keys = base_cfg_dict.keys() & c.keys()
+                if len(duplicate_keys) > 0:
+                    raise KeyError('Duplicate key is not allowed among bases. '
+                                   f'Duplicate keys: {duplicate_keys}')
                 base_cfg_dict.update(c)
+
+            # Substitute base variables from strings to their actual values
+            cfg_dict = Config._substitute_base_vars(cfg_dict, base_var_dict,
+                                                    base_cfg_dict)
 
             base_cfg_dict = Config._merge_a_into_b(cfg_dict, base_cfg_dict)
             cfg_dict = base_cfg_dict
@@ -275,11 +352,13 @@ class Config:
             # check if users specify a wrong suffix for python
             warnings.warn(
                 'Please check "file_format", the file format may be .py')
-
-        with tempfile.NamedTemporaryFile('w', suffix=file_format) as temp_file:
+        with tempfile.NamedTemporaryFile(
+                'w', suffix=file_format, delete=False) as temp_file:
             temp_file.write(cfg_str)
-            temp_file.flush()
-            cfg = Config.fromfile(temp_file.name)
+            # on windows, previous implementation cause error
+            # see PR 1077 for details
+        cfg = Config.fromfile(temp_file.name)
+        os.remove(temp_file.name)
         return cfg
 
     @staticmethod
@@ -555,7 +634,7 @@ class DictAction(Action):
             >>> DictAction._parse_iterable('[a, b, c]')
             ['a', 'b', 'c']
             >>> DictAction._parse_iterable('[(1, 2, 3), [a, b], c]')
-            [(1, 2, 3), ['a', 'b], 'c']
+            [(1, 2, 3), ['a', 'b'], 'c']
         """
 
         def find_next_comma(string):

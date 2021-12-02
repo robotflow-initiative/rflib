@@ -11,15 +11,9 @@
 #include <cstdio>
 #include "cuda.h"
 
-#define IDX2D(i, j, dj) (dj * i + j)
-#define IDX3D(i, j, k, dj, dk) (IDX2D(IDX2D(i, j, dj), k, dk))
-
-#define BLOCK 512
-#define MAX_STREAMS 512
-
 // Constants used by the program
 #define BLOCK_DIM                      16
-
+#define DEBUG                          0
 
 /**
   * Computes the distance between two matrix A (reference points) and
@@ -35,10 +29,9 @@
 __global__ void cuComputeDistanceGlobal( float* A, int wA,
     float* B, int wB, int dim, float* AB){
 
-// Declaration of the shared memory arrays As and Bs used to store the sub-matrix of A and B
-__shared__ float shared_A[BLOCK_DIM][BLOCK_DIM];
-__shared__ float shared_B[BLOCK_DIM][BLOCK_DIM];
-
+  // Declaration of the shared memory arrays As and Bs used to store the sub-matrix of A and B
+  __shared__ float shared_A[BLOCK_DIM][BLOCK_DIM];
+  __shared__ float shared_B[BLOCK_DIM][BLOCK_DIM];
 
   // Sub-matrix of A (begin, step, end) and Sub-matrix of B (begin, step)
   __shared__ int begin_A;
@@ -118,7 +111,6 @@ __global__ void cuInsertionSort(float *dist, long *ind, int width, int height, i
   float curr_dist, max_dist;
   long  curr_row,  max_row;
   unsigned int xIndex = blockIdx.x * blockDim.x + threadIdx.x;
-
   if (xIndex<width){
     // Pointer shift, initialization, and max value
     p_dist   = dist + xIndex;
@@ -143,9 +135,9 @@ __global__ void cuInsertionSort(float *dist, long *ind, int width, int height, i
           p_ind[j*width]   = p_ind[(j-1)*width];
         }
         p_dist[i*width] = curr_dist;
-        p_ind[i*width]   = l+1;
+        p_ind[i*width]  = l + 1;
       } else {
-        p_ind[l*width] = l+1;
+        p_ind[l*width] = l + 1;
       }
       max_dist = p_dist[curr_row];
     }
@@ -167,7 +159,7 @@ __global__ void cuInsertionSort(float *dist, long *ind, int width, int height, i
           p_ind[j*width]   = p_ind[(j-1)*width];
         }
         p_dist[i*width] = curr_dist;
-        p_ind[i*width]   = l+1;
+        p_ind[i*width]   = l + 1;
         max_dist             = p_dist[max_row];
       }
     }
@@ -189,6 +181,30 @@ __global__ void cuParallelSqrt(float *dist, int width, int k){
   if (xIndex<width && yIndex<k)
     dist[yIndex*width + xIndex] = sqrt(dist[yIndex*width + xIndex]);
 }
+
+
+void debug(float * dist_dev, long * ind_dev, const int query_nb, const int k){
+  float* dist_host = new float[query_nb * k];
+  long*  idx_host  = new long[query_nb * k];
+
+  // Memory copy of output from device to host
+  cudaMemcpy(dist_host, dist_dev,
+      query_nb * k * sizeof(float), cudaMemcpyDeviceToHost);
+
+  cudaMemcpy(idx_host, ind_dev,
+      query_nb * k * sizeof(long), cudaMemcpyDeviceToHost);
+
+  int i, j;
+  for(i = 0; i < k; i++){
+    for (j = 0; j < query_nb; j++) {
+      if (j % 8 == 0)
+        printf("/\n");
+      printf("%f ", sqrt(dist_host[i*query_nb + j]));
+    }
+    printf("\n");
+  }
+}
+
 
 
 //-----------------------------------------------------------------------------------------------//
@@ -216,33 +232,38 @@ __global__ void cuParallelSqrt(float *dist, int width, int k){
 void knn_device(float* ref_dev, int ref_nb, float* query_dev, int query_nb,
     int dim, int k, float* dist_dev, long* ind_dev, cudaStream_t stream){
 
-  // Grids and threads
-  dim3 g_16x16(query_nb/16, ref_nb/16, 1);
-  dim3 t_16x16(16, 16, 1);
-  if (query_nb%16 != 0) g_16x16.x += 1;
-  if (ref_nb  %16 != 0) g_16x16.y += 1;
+  // Grids ans threads
+  dim3 g_16x16(query_nb / BLOCK_DIM, ref_nb / BLOCK_DIM, 1);
+  dim3 t_16x16(BLOCK_DIM, BLOCK_DIM, 1);
+  if (query_nb % BLOCK_DIM != 0) g_16x16.x += 1;
+  if (ref_nb   % BLOCK_DIM != 0) g_16x16.y += 1;
   //
-  dim3 g_256x1(query_nb/256, 1, 1);
+  dim3 g_256x1(query_nb / 256, 1, 1);
   dim3 t_256x1(256, 1, 1);
   if (query_nb%256 != 0) g_256x1.x += 1;
 
-  dim3 g_k_16x16(query_nb/16, k/16, 1);
-  dim3 t_k_16x16(16, 16, 1);
-  if (query_nb%16 != 0) g_k_16x16.x += 1;
-  if (k  %16 != 0) g_k_16x16.y += 1;
+  dim3 g_k_16x16(query_nb / BLOCK_DIM, k / BLOCK_DIM, 1);
+  dim3 t_k_16x16(BLOCK_DIM, BLOCK_DIM, 1);
+  if (query_nb % BLOCK_DIM != 0) g_k_16x16.x += 1;
+  if (k  % BLOCK_DIM != 0) g_k_16x16.y += 1;
 
   // Kernel 1: Compute all the distances
-  cuComputeDistanceGlobal<<<g_16x16, t_16x16, 0, stream>>>(ref_dev, ref_nb, query_dev, query_nb, dim, dist_dev);
+  cuComputeDistanceGlobal<<<g_16x16, t_16x16, 0, stream>>>(ref_dev, ref_nb,
+      query_dev, query_nb, dim, dist_dev);
+
+#if DEBUG
+  printf("Pre insertionSort\n");
+  debug(dist_dev, ind_dev, query_nb, k);
+#endif
 
   // Kernel 2: Sort each column
   cuInsertionSort<<<g_256x1, t_256x1, 0, stream>>>(dist_dev, ind_dev, query_nb, ref_nb, k);
 
+#if DEBUG
+  printf("Post insertionSort\n");
+  debug(dist_dev, ind_dev, query_nb, k);
+#endif
+
   // Kernel 3: Compute square root of k first elements
-  // cuParallelSqrt<<<g_k_16x16,t_k_16x16, 0, stream>>>(dist_dev, query_nb, k);
+  cuParallelSqrt<<<g_k_16x16,t_k_16x16, 0, stream>>>(dist_dev, query_nb, k);
 }
-
-
-
-
-
-

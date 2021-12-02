@@ -40,7 +40,7 @@ class RFDistributedDataParallel(DistributedDataParallel):
         if (TORCH_VERSION >= '1.7') and self.reducer._rebuild_buckets():
             print_log(
                 'Reducer buckets have been rebuilt in this iteration.',
-                logger='mmcv')
+                logger='rflib')
 
         if getattr(self, 'require_forward_param_sync', True):
             self._sync_params()
